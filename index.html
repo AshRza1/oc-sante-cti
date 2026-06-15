@@ -20,7 +20,7 @@
       --radius:12px;
     }
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased;}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;font-size:15px;-webkit-font-smoothing:antialiased;}
 
     /* PRINT */
     @media print {
@@ -53,7 +53,7 @@
     /* LAYOUT */
     main{max-width:1440px;margin:0 auto;padding:1.5rem 2rem;}
     .sec-title{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;margin-top:2rem;}
-    .sec-title h2{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--t3);white-space:nowrap;}
+    .sec-title h2{font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--t3);white-space:nowrap;}
     .sec-title .hr{flex:1;height:1px;background:var(--border);}
 
     /* KPIs */
@@ -351,7 +351,7 @@
 
 <!-- KPIs -->
 <div class="sec-title" style="margin-top:0">
-  <h2>📊 Indicateurs Clés</h2><div class="hr"></div>
+  <h2>Indicateurs Clés</h2><div class="hr"></div>
 </div>
 <div class="kpi-row">
   <div class="kpi c-red">
@@ -382,7 +382,7 @@
 
 <!-- CHARTS -->
 <div class="sec-title">
-  <h2>📈 Tendances</h2><div class="hr"></div>
+  <h2>Tendances</h2><div class="hr"></div>
 </div>
 <div class="charts-row">
   <div class="card">
@@ -404,8 +404,7 @@
 
 <!-- ══ CERT-FR & CYBERVEILLE ══ -->
 <div class="sec-title">
-  <h2>🔴 Veille CTI — Sources Institutionnelles</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">CERT-FR · Cyberveille ANS e-Santé · Alertes en direct</span>
+  <h2>Veille</h2><div class="hr"></div>
 </div>
 <div class="cti-panel">
 
@@ -441,7 +440,7 @@
 
 <!-- CVE + ACTORS -->
 <div class="sec-title">
-  <h2>🔓 Vulnérabilités & Acteurs menaçants</h2><div class="hr"></div>
+  <h2>Vulnérabilités</h2><div class="hr"></div>
 </div>
 <div class="two-col">
   <div class="card">
@@ -462,8 +461,7 @@
 
 <!-- RSS -->
 <div class="sec-title">
-  <h2>📡 Flux RSS en temps réel</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Données live via agrégation RSS</span>
+  <h2>Flux RSS</h2><div class="hr"></div>
 </div>
 <div class="card">
   <div class="tabs">
@@ -482,7 +480,7 @@
 
 <!-- ══ FEATURE 1 : ALERTES PUSH ══ -->
 <div class="sec-title">
-  <h2>🔔 Alertes Push & Notifications</h2><div class="hr"></div>
+  <h2>Alertes</h2><div class="hr"></div>
   <span style="font-size:.65rem;color:var(--blue);white-space:nowrap">Configuration des seuils d'alerte</span>
 </div>
 <div class="alert-panel no-print">
@@ -514,7 +512,7 @@
 
 <!-- ══ FEATURE 2 : SCORING RISQUE ══ -->
 <div class="sec-title">
-  <h2>🗺️ Scoring de Risque Contextualisé</h2><div class="hr"></div>
+  <h2>Scoring de Risque</h2><div class="hr"></div>
   <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Corrélation CVE × Actifs OC Santé</span>
 </div>
 <div class="card">
@@ -540,8 +538,7 @@
 
 <!-- ══ FEATURE 3 : RAPPORT PDF (visible à l'impression) ══ -->
 <div class="sec-title no-print">
-  <h2>📄 Rapport Exécutif Auto-Généré</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Export PDF pour direction / CODIR</span>
+  <h2>Rapport Exécutif</h2><div class="hr"></div>
 </div>
 <div class="card no-print">
   <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
@@ -558,8 +555,7 @@
 
 <!-- ══ FEATURE 4 : CARTOGRAPHIE GEO ══ -->
 <div class="sec-title">
-  <h2>🌍 Cartographie Géographique des Menaces</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Origine des groupes menaçants actifs</span>
+  <h2>Cartographie</h2><div class="hr"></div>
 </div>
 <div class="card">
   <div class="card-hdr">
@@ -710,8 +706,7 @@
 
 <!-- ══ FEATURE 5 : PATCH MANAGEMENT ══ -->
 <div class="sec-title">
-  <h2>📅 Calendrier de Patch Management</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">30 prochains jours – priorisé par urgence</span>
+  <h2>Calendrier de Patch</h2><div class="hr"></div>
 </div>
 <div class="card">
   <div class="card-hdr">
@@ -737,7 +732,7 @@
 
 <!-- ══ FEATURE 6 : OSINT DARK WEB ══ -->
 <div class="sec-title">
-  <h2>🔍 Surveillance OSINT &amp; Dark Web</h2><div class="hr"></div>
+  <h2>OSINT & Dark Web</h2><div class="hr"></div>
   <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Veille exposition OC Santé sur sources ouvertes</span>
 </div>
 <div class="card">
@@ -750,8 +745,7 @@
 
 <!-- ══ FEATURE 7 : BENCHMARK ══ -->
 <div class="sec-title">
-  <h2>📊 Benchmark Sectoriel</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Comparaison anonymisée avec le secteur santé FR</span>
+  <h2>Benchmark Sectoriel</h2><div class="hr"></div>
 </div>
 <div class="card">
   <div class="card-hdr">
@@ -778,8 +772,7 @@
 
 <!-- ══ FEATURE 8 : RÉSUMÉ IA ══ -->
 <div class="sec-title">
-  <h2>🤖 Synthèse IA — Résumé Exécutif</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--purple);white-space:nowrap">Analyse automatique pour décideurs</span>
+  <h2>Résumé Exécutif</h2><div class="hr"></div>
 </div>
 <div class="card">
   <div class="ai-wrap">
@@ -794,7 +787,7 @@
 
 <!-- RSSI QUESTIONS -->
 <div class="sec-title">
-  <h2>ℹ️ Informations</h2><div class="hr"></div>
+  <h2>Informations</h2><div class="hr"></div>
 </div>
 <div class="q-grid">
   <div class="q-card">
@@ -841,8 +834,7 @@
 
 <!-- SURFACE -->
 <div class="sec-title">
-  <h2>🏥 Surface Surveillée OC Santé</h2><div class="hr"></div>
-  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">43 actifs · Domaines &amp; IPs exposés</span>
+  <h2>Surface Surveillée</h2><div class="hr"></div>
 </div>
 <div style="display:flex;align-items:center;gap:1rem;padding:1.2rem 1.5rem;background:#f0f4f9;border:1.5px dashed #b8cce0;border-radius:10px;color:#475569;font-size:.85rem;">
   <span style="font-size:1.5rem;">🔒</span>
@@ -854,7 +846,7 @@
 
 <!-- SOURCES -->
 <div class="sec-title">
-  <h2>🔗 Sources CTI Actives</h2><div class="hr"></div>
+  <h2>Sources</h2><div class="hr"></div>
 </div>
 <div class="sources-grid">
   <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">CERT-FR</div></div><div class="src-cat">Institutionnel · Alertes</div></div>
@@ -999,70 +991,78 @@ const OSINT_DATA = [
 
 const MOCK = {
   alertes:[
-    { source:'CERT-FR', title:'Alerte critique – Exploitation active CVE-2025-0282 (Ivanti Connect Secure)', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-001/' },
-    { source:'ANS e-Santé', title:'Bulletin sécurité : Campagne ransomware ciblant les GHT – recommandations urgentes', date:'14/06/2026', url:'https://esante.gouv.fr/actualites/bulletin-securite-ransomware-ght-2025' },
-    { source:'CERT-FR', title:'Avis de sécurité – Patch Tuesday Microsoft Juin 2025 (78 CVE dont 6 critiques)', date:'10/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0470/' },
-    { source:'ANSSI', title:'État de la menace ransomware en France – Rapport T1 2025', date:'05/06/2026', url:'https://www.ssi.gouv.fr/actualite/letat-de-la-menace-ransomware/' },
-    { source:'ANS e-Santé', title:'Cyber-résilience des établissements santé : nouvelles obligations NIS2', date:'02/06/2026', url:'https://esante.gouv.fr/actualites/nis2-obligations-sante' },
-    { source:'CERT-FR', title:'Campagne de phishing ciblant les DSI hospitaliers – indicateurs de compromission', date:'28/05/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-009/' },
+    { source:'CERT-FR', title:'Rapport menaces T1 2026 – recul du ransomware, essor de l\'exfiltration de données', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
+    { source:'CERT-FR', title:'Panorama de la cybermenace 2025 – frontière état/cybercriminel effacée', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
+    { source:'CERT-FR', title:'Bulletin CERTFR-2026-ACT-019 – vulnérabilités critiques semaine 17', date:'27/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-019/' },
+    { source:'CERT-FR', title:'L\'IA générative face aux attaques informatiques – analyse CERT-FR', date:'04/02/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-001/' },
+    { source:'CERT-FR', title:'Bulletin CERTFR-2026-ACT-012 – vulnérabilités Moxa, Schneider Electric', date:'23/03/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-012/' },
+    { source:'CERT Santé', title:'Cyberveille Santé – alertes et vulnérabilités dispositifs médicaux', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
   ],
   cve:[
-    { source:'CISA Medical', title:'ICS Advisory – Vulnérabilité critique Philips IntelliVue (CVSS 9.8) : accès non authentifié', date:'12/06/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-163-01' },
-    { source:'NVD NIST', title:'CVE-2025-3842 – Systèmes HL7 FHIR : contournement authentification RCE', date:'10/06/2026', url:'https://nvd.nist.gov/vuln/detail/CVE-2025-3842' },
-    { source:'CERT-FR Avis', title:'Multiples vulnérabilités dans Microsoft Exchange activement exploitées', date:'08/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0421/' },
-    { source:'CISA KEV', title:'Known Exploited Vulnerability – SonicWall SMA 100 series (CVE-2025-23006)', date:'07/06/2026', url:'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
-    { source:'NVD NIST', title:'CVE-2025-2891 – Logiciel DPI imagerie médicale : RCE pré-authentification', date:'03/06/2026', url:'https://nvd.nist.gov/vuln/detail/CVE-2025-2891' },
-    { source:'CISA Medical', title:'ICS Advisory – BD Alaris infusion pump : vulnérabilité réseau critique', date:'01/06/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-152-01' },
+    { source:'CISA Medical', title:'Fourth Frontier Frontier X2 – vulnérabilité application mobile cardiaque (ICSMA-26-148-01)', date:'28/05/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-26-148-01' },
+    { source:'CISA Medical', title:'Grassroots DICOM (GDCM) – vulnérabilité imagerie médicale (ICSMA-26-083-01)', date:'24/03/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-26-083-01' },
+    { source:'CISA Medical', title:'Vertikal Systems Hospital Manager – exposition endpoint sensible (ICSMA-25-301-01)', date:'29/10/2025', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-301-01' },
+    { source:'CISA Medical', title:'FUJIFILM Healthcare Synapse Mobility – élévation de privilèges (ICSMA-25-233-01)', date:'22/08/2025', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-233-01' },
+    { source:'CISA Medical', title:'MicroDicom DICOM Viewer – vulnérabilité critique imagerie médicale (ICSMA-25-160-01)', date:'10/06/2025', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-160-01' },
+    { source:'CISA KEV', title:'Known Exploited Vulnerabilities Catalog – catalogue mis à jour juin 2026', date:'15/06/2026', url:'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
   ],
   sante:[
-    { source:'Healthcare IT News', title:'Ransomware hits 3 German hospital networks – 12 facilities encrypted, surgeries postponed', date:'14/06/2026', url:'https://www.healthcareitnews.com/news/ransomware-german-hospitals-2025' },
-    { source:'CISA ICS Medical', title:'FDA Safety Communication – Cybersecurity vulnerabilities in implantable cardiac devices', date:'11/06/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories' },
-    { source:'Healthcare IT News', title:'French EHPAD group recovers from 3-week outage after Medusa ransomware attack', date:'09/06/2026', url:'https://www.healthcareitnews.com/news/medusa-ransomware-ehpad-france' },
-    { source:'Becker Hospital', title:'Healthcare data breach costs reach record $10.9M per incident in 2025', date:'07/06/2026', url:'https://www.beckershospitalreview.com/cybersecurity/healthcare-breach-costs-2025.html' },
-    { source:'Modern Healthcare', title:'AI-powered spear-phishing increasingly targets clinical staff with patient data lures', date:'05/06/2026', url:'https://www.modernhealthcare.com/cybersecurity/ai-phishing-hospitals-2025' },
-    { source:'HIPAA Guide', title:'50% of healthcare ransomware victims paid ransom in 2024 – CISO survey results', date:'02/06/2026', url:'https://www.hipaaguide.net/healthcare-ransomware-survey-2024/' },
+    { source:'CISA', title:'Key Risk and Vulnerability Findings for Healthcare and Public Health Sector', date:'15/06/2026', url:'https://www.cisa.gov/news-events/news/cisa-releases-key-risk-and-vulnerability-findings-healthcare-and-public-health-sector' },
+    { source:'CERT-FR', title:'Rapport menaces T1 2026 – impact sur les établissements de santé', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
+    { source:'CERT-FR', title:'Panorama de la cybermenace 2025 – APT et ransomware ciblant la santé', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
+    { source:'CERT Santé', title:'Cyberveille Santé – actualités alertes et incidents pour le secteur', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
+    { source:'Healthcare IT News', title:'Cybersécurité santé – actualités, incidents et analyses 2026', date:'15/06/2026', url:'https://www.healthcareitnews.com/cyber-security' },
+    { source:'HIPAA Journal', title:'Healthcare cybersecurity news – breaches and ransomware 2026', date:'15/06/2026', url:'https://www.hipaajournal.com/category/cybersecurity/' },
   ],
   menaces:[
-    { source:'BleepingComputer', title:'RansomHub claims attack on major European hospital supply chain provider', date:'15/06/2026', url:'https://www.bleepingcomputer.com/news/security/ransomhub-european-hospital-supply-chain/' },
-    { source:'The Hacker News', title:'Lazarus Group deploys new stealth RAT targeting pharmaceutical R&D networks', date:'13/06/2026', url:'https://thehackernews.com/2025/06/lazarus-group-pharma-rat.html' },
-    { source:'Krebs on Security', title:'Inside the Medusa ransomware operation: 3 years targeting healthcare', date:'11/06/2026', url:'https://krebsonsecurity.com/2025/06/inside-medusa-ransomware/' },
-    { source:'BleepingComputer', title:'LockBit infrastructure taken down again – new variant already active within 48h', date:'09/06/2026', url:'https://www.bleepingcomputer.com/news/security/lockbit-infrastructure-takedown-2025/' },
-    { source:'The Hacker News', title:'Critical Cisco IOS XE vulnerabilities allow lateral movement in hospital networks', date:'07/06/2026', url:'https://thehackernews.com/2025/06/cisco-iosxe-hospital-lateral-movement.html' },
-    { source:'Krebs on Security', title:'Initial access brokers sell hospital VPN credentials on dark web forums for $500', date:'04/06/2026', url:'https://krebsonsecurity.com/2025/06/hospital-vpn-credentials-dark-web/' },
+    { source:'CERT-FR', title:'Rapport menaces T1 2026 – groupes APT et cybercriminels actifs', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
+    { source:'BleepingComputer', title:'Ransomware – suivi des groupes actifs et opérations de démantèlement 2026', date:'15/06/2026', url:'https://www.bleepingcomputer.com/tag/ransomware/' },
+    { source:'The Hacker News', title:'APT & Nation-State – cyberattaques étatiques et espionnage 2026', date:'15/06/2026', url:'https://thehackernews.com/search/label/APT' },
+    { source:'CERT-FR', title:'Panorama cybermenace 2025 – cartographie des groupes menaçants', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
+    { source:'BleepingComputer', title:'Actualités cybersécurité – incidents et nouvelles menaces', date:'15/06/2026', url:'https://www.bleepingcomputer.com/news/security/' },
+    { source:'Krebs on Security', title:'Investigations cybercrime – dark web et menaces actives', date:'15/06/2026', url:'https://krebsonsecurity.com/' },
   ],
   rgpd:[
-    { source:'CNIL', title:'Délibération – Violation de données médicales : sanction record 4,5M€ infligée à un groupe hospitalier', date:'13/06/2026', url:'https://www.cnil.fr/fr/deliberation-violation-donnees-medicales-sanction' },
-    { source:'EDPB', title:'Guidelines 02/2025 on personal data breach notification for health sector', date:'10/06/2026', url:'https://edpb.europa.eu/our-work-tools/documents/public-consultations/2025/guidelines-022025_en' },
-    { source:'CNIL', title:'Mise en demeure – Dossier Patient Informatisé : durée de conservation non conforme', date:'07/06/2026', url:'https://www.cnil.fr/fr/mise-en-demeure-dossier-patient-informatise' },
-    { source:'IAPP', title:'NIS2 deadline approaches: French health organizations prepare mandatory incident reporting', date:'05/06/2026', url:'https://iapp.org/news/a/nis2-france-health-2025/' },
-    { source:'CNIL', title:'Rapport annuel 2024 – Secteur santé : +38% de violations de données déclarées', date:'01/06/2026', url:'https://www.cnil.fr/fr/rapport-annuel-2024' },
-    { source:'EDPB', title:'Joint statement on AI in healthcare and data protection obligations under GDPR', date:'28/05/2026', url:'https://edpb.europa.eu/our-work-tools/our-documents/statements/ai-healthcare-gdpr_en' },
+    { source:'CNIL', title:'Délibération n° 2025-098 – hébergement de données de santé à caractère personnel', date:'16/10/2025', url:'https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000053718138' },
+    { source:'CNIL', title:'Cyberattaque : obligations légales des professionnels de santé en cas de violation', date:'15/06/2026', url:'https://www.cnil.fr/fr/professionnels-vous-etes-victimes-dune-cyberattaque-quelles-sont-vos-obligations' },
+    { source:'CNIL', title:'Sanctions prononcées par la CNIL – liste complète des délibérations 2025-2026', date:'15/06/2026', url:'https://www.cnil.fr/fr/les-sanctions-prononcees-par-la-cnil' },
+    { source:'CNIL', title:'Bilan annuel 2024 – la CNIL en chiffres (publié 2025)', date:'01/03/2025', url:'https://www.cnil.fr/fr/bilan-annuel-2024-la-cnil-en-chiffres' },
+    { source:'CERT-FR', title:'Panorama de la cybermenace 2025 – conformité NIS2 et incidents cyber', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
+    { source:'IAPP', title:'Privacy News – actualités conformité RGPD et protection des données', date:'15/06/2026', url:'https://iapp.org/news/privacy-news-top-10/' },
   ],
 };
 
 const RSS_FEEDS = {
   alertes:[
-    { url:'https://www.cert.ssi.gouv.fr/alerte/feed/', name:'CERT-FR Alertes' },
-    { url:'https://www.cert.ssi.gouv.fr/feed/',        name:'CERT-FR Actualités' },
-    { url:'https://esante.gouv.fr/rss.xml',            name:'ANS e-Santé' },
+    { url:'https://www.cert.ssi.gouv.fr/alerte/feed/',       name:'CERT-FR Alertes' },
+    { url:'https://www.cert.ssi.gouv.fr/feed/',              name:'CERT-FR Actualités' },
+    { url:'https://www.cert.ssi.gouv.fr/avis/feed/',         name:'CERT-FR Avis' },
+    { url:'https://www.helpnetsecurity.com/feed/',            name:'Help Net Security' },
   ],
   cve:[
-    { url:'https://www.cisa.gov/cybersecurity-advisories/ics-medical-advisories.xml', name:'CISA Medical' },
-    { url:'https://www.cert.ssi.gouv.fr/avis/feed/',   name:'CERT-FR Avis' },
+    { url:'https://www.cert.ssi.gouv.fr/avis/feed/',         name:'CERT-FR Avis' },
+    { url:'https://www.bleepingcomputer.com/feed/',          name:'BleepingComputer' },
+    { url:'https://www.helpnetsecurity.com/feed/',           name:'Help Net Security' },
+    { url:'https://cybersecuritydive.com/feeds/news/',       name:'Cybersecurity Dive' },
   ],
   sante:[
-    { url:'https://healthcareitnews.com/taxonomy/term/40/rss.xml', name:'Healthcare IT News' },
-    { url:'https://www.cisa.gov/cybersecurity-advisories/ics-medical-advisories.xml', name:'CISA ICS Medical' },
+    { url:'https://www.healthcareitnews.com/rss.xml',        name:'Healthcare IT News' },
+    { url:'https://www.hipaajournal.com/feed/',              name:'HIPAA Journal' },
+    { url:'https://www.helpnetsecurity.com/feed/',           name:'Help Net Security' },
+    { url:'https://cybersecuritydive.com/feeds/news/',       name:'Cybersecurity Dive' },
   ],
   menaces:[
-    { url:'https://thehackernews.com/feeds/posts/default', name:'The Hacker News' },
-    { url:'https://www.bleepingcomputer.com/feed/',        name:'BleepingComputer' },
-    { url:'https://krebsonsecurity.com/feed/',             name:'Krebs on Security' },
+    { url:'https://thehackernews.com/feeds/posts/default',   name:'The Hacker News' },
+    { url:'https://www.bleepingcomputer.com/feed/',          name:'BleepingComputer' },
+    { url:'https://krebsonsecurity.com/feed/',               name:'Krebs on Security' },
+    { url:'https://www.darkreading.com/rss.xml',             name:'Dark Reading' },
+    { url:'https://www.securityweek.com/feed/',              name:'SecurityWeek' },
   ],
   rgpd:[
-    { url:'https://www.cnil.fr/fr/rss.xml', name:'CNIL' },
-    { url:'https://edpb.europa.eu/rss_en',  name:'EDPB' },
-    { url:'https://iapp.org/news/rss.xml',  name:'IAPP' },
+    { url:'https://www.cnil.fr/fr/rss.xml',                  name:'CNIL' },
+    { url:'https://cybersecuritydive.com/feeds/news/',       name:'Cybersecurity Dive' },
+    { url:'https://www.helpnetsecurity.com/feed/',           name:'Help Net Security' },
+    { url:'https://grahamcluley.com/feed/',                  name:'Graham Cluley' },
   ],
 };
 
@@ -1596,12 +1596,12 @@ function renderFeedItems(panel, items, isMock) {
 //  CTI PANELS — CERT-FR & CYBERVEILLE ANS
 // ═══════════════════════════════════════════════════════════
 const CERTFR_MOCK = [
-  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Exploitation active CVE-2025-0282 – Ivanti Connect Secure', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-001/' },
-  { tag:'AVIS',   tagCls:'cti-tag-blue', title:'Patch Tuesday Juin 2025 – Microsoft (78 CVE dont 6 critiques)', date:'10/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0470/' },
-  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Campagne phishing ciblant les DSI hospitaliers – IoCs publiés', date:'08/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-009/' },
-  { tag:'AVIS',   tagCls:'cti-tag-blue', title:'Multiples vulnérabilités Microsoft Exchange – exploitation active', date:'05/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0421/' },
-  { tag:'ALERTE', tagCls:'cti-tag-red', title:'SonicWall SMA 100 – CVE-2025-23006 exploitée en masse', date:'02/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-006/' },
-  { tag:'AVIS',   tagCls:'cti-tag-blue', title:'GeoServer CVE-2024-36401 – installations médicales exposées', date:'28/05/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2024-AVI-0890/' },
+  { tag:'RAPPORT', tagCls:'cti-tag-red',  title:'Rapport menaces T1 2026 – recul du ransomware, essor de l\'exfiltration (CERTFR-2026-CTI-003)', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
+  { tag:'RAPPORT', tagCls:'cti-tag-blue', title:'Panorama de la cybermenace 2025 – frontière état/cybercriminel effacée (CERTFR-2026-CTI-002)', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
+  { tag:'BULLETIN', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-019 – vulnérabilités critiques semaine 17', date:'27/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-019/' },
+  { tag:'RAPPORT', tagCls:'cti-tag-orange', title:'L\'IA générative face aux attaques informatiques – analyse CERT-FR (CERTFR-2026-CTI-001)', date:'04/02/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-001/' },
+  { tag:'BULLETIN', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-012 – vulnérabilités Moxa, Schneider Electric', date:'23/03/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-012/' },
+  { tag:'BULLETIN', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-009 – alertes critiques mars 2026', date:'02/03/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-009/' },
 ];
 
 const CYBERVEILLE_MOCK = [
