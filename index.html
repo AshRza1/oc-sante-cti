@@ -1122,7 +1122,9 @@ function toggleActor(i) {
 //  SURFACE
 // ═══════════════════════════════════════════════════════════
 function renderSurface() {
-  document.getElementById('surface-grid').innerHTML = [
+  const el = document.getElementById('surface-grid');
+  if (!el) return;
+  el.innerHTML = [
     ...OC_DOMAINS.map(d=>`<div class="surf-item"><div class="surf-dot dom"></div>${d}</div>`),
     ...OC_IPS.map(ip=>`<div class="surf-item"><div class="surf-dot ip"></div>${ip}</div>`),
   ].join('');
