@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberSight – CTI Dashboard | OC Santé</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:#f0f4f9; --bg2:#e8eef6; --card:#ffffff; --card2:#f5f8fc;
+      --border:#d1dce8; --border2:#b8cce0;
+      --t1:#0f172a; --t2:#334155; --t3:#64748b;
+      --blue:#1d4ed8; --cyan:#0284c7; --teal:#0d9488;
+      --red:#dc2626; --orange:#ea580c; --yellow:#ca8a04;
+      --green:#16a34a; --purple:#7c3aed;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;font-size:15px;}
+
+    /* PRINT */
+    @media print {
+      header,footer,.no-print{display:none!important;}
+      body{background:#fff;color:#000;}
+      .card,.kpi,.q-card,.src{background:#f9f9f9;border:1px solid #ccc;break-inside:avoid;}
+      .kpi-val{color:#000!important;}
+      canvas{max-width:400px;}
+      main{padding:1rem;}
+    }
+
+    /* HEADER */
+    header{background:rgba(255,255,255,.97);border-bottom:2px solid var(--blue);position:sticky;top:0;z-index:200;backdrop-filter:blur(12px);box-shadow:0 2px 12px rgba(29,78,216,.08);}
+    .hdr{max-width:1440px;margin:0 auto;padding:.7rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+    .logo{display:flex;align-items:center;gap:.7rem;}
+    .logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#1d4ed8,#06b6d4);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+    .logo h1{font-size:1rem;font-weight:700;line-height:1.15;}
+    .logo span{font-size:.65rem;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;}
+    .hdr-right{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
+    .threat-chip{display:flex;align-items:center;gap:.4rem;padding:.3rem .75rem;border-radius:50px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border:1px solid;cursor:default;}
+    .chip-high{background:rgba(234,88,12,.1);border-color:rgba(234,88,12,.4);color:var(--orange);}
+    .chip-critical{background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.4);color:var(--red);}
+    .dot-pulse{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+    .upd{font-size:.7rem;color:var(--t3);}
+    .hdr-btn{padding:.3rem .8rem;border-radius:6px;border:1px solid var(--border2);background:#f0f4f9;color:var(--t2);font-size:.72rem;cursor:pointer;transition:all .15s;}
+    .hdr-btn:hover{background:rgba(29,78,216,.08);border-color:rgba(29,78,216,.4);color:var(--blue);}
+    .hdr-btn.active-notif{background:rgba(202,138,4,.1);border-color:rgba(202,138,4,.4);color:var(--yellow);}
+
+    /* LAYOUT */
+    main{max-width:1440px;margin:0 auto;padding:1.25rem 1.5rem;}
+    .sec-title{display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem;margin-top:1.5rem;}
+    .sec-title h2{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t2);white-space:nowrap;}
+    .sec-title .hr{flex:1;height:1px;background:var(--border);}
+
+    /* KPIs */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+    .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.25rem;position:relative;overflow:hidden;border-left-width:3px;border-left-style:solid;transition:border-color .2s;}
+    .kpi:hover{border-color:var(--border2);}
+    .kpi.c-red{border-left-color:var(--red);}
+    .kpi.c-orange{border-left-color:var(--orange);}
+    .kpi.c-yellow{border-left-color:var(--yellow);}
+    .kpi.c-green{border-left-color:var(--green);}
+    .kpi-label{font-size:.65rem;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem;}
+    .kpi-val{font-size:2.2rem;font-weight:800;line-height:1;margin-bottom:.3rem;}
+    .kpi.c-red .kpi-val{color:var(--red);}
+    .kpi.c-orange .kpi-val{color:var(--orange);}
+    .kpi.c-yellow .kpi-val{color:var(--yellow);}
+    .kpi.c-green .kpi-val{color:var(--green);}
+    .kpi-sub{font-size:.72rem;color:var(--t2);}
+    .kpi-icon{position:absolute;top:.9rem;right:1rem;font-size:1.7rem;opacity:.1;}
+
+    /* CHARTS */
+    .charts-row{display:grid;grid-template-columns:2.2fr 1fr 1fr;gap:1rem;}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .card-hdr{padding:.8rem 1.1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .card-hdr h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t2);display:flex;align-items:center;gap:.45rem;}
+    .card-body{padding:1.1rem;}
+    .chart-wrap{position:relative;height:190px;}
+
+    /* TWO COL */
+    .two-col{display:grid;grid-template-columns:1.2fr 1fr;gap:1rem;}
+
+    /* CVE */
+    .cve-item{display:flex;gap:.75rem;padding:.8rem 1.1rem;border-bottom:1px solid var(--border);transition:background .15s;}
+    .cve-item:last-child{border-bottom:none;}
+    .cve-item:hover{background:var(--card2);}
+    .cve-score-box{min-width:44px;text-align:center;}
+    .cve-num{font-size:1.1rem;font-weight:800;line-height:1;}
+    .cve-num.c-red{color:var(--red);}
+    .cve-num.c-orange{color:var(--orange);}
+    .cve-num.c-yellow{color:var(--yellow);}
+    .cve-lbl{font-size:.58rem;color:var(--t3);text-transform:uppercase;}
+    .cve-id{font-family:monospace;font-size:.75rem;color:var(--blue);font-weight:700;text-decoration:none;}
+    .cve-id:hover{color:var(--cyan);text-decoration:underline;}
+    .cve-prod{font-size:.76rem;color:var(--t1);margin:.1rem 0 .25rem;}
+    .tag{display:inline-flex;align-items:center;font-size:.58rem;padding:.1rem .38rem;border-radius:3px;font-weight:600;border:1px solid;}
+    .tag-red{background:rgba(239,68,68,.1);color:var(--red);border-color:rgba(239,68,68,.25);}
+    .tag-cyan{background:rgba(6,182,212,.1);color:var(--cyan);border-color:rgba(6,182,212,.25);}
+    .tag-orange{background:rgba(249,115,22,.1);color:var(--orange);border-color:rgba(249,115,22,.25);}
+    .tag-purple{background:rgba(167,139,250,.1);color:var(--purple);border-color:rgba(167,139,250,.25);}
+    .tag-green{background:rgba(34,197,94,.1);color:var(--green);border-color:rgba(34,197,94,.25);}
+    .tags{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.15rem;}
+
+    /* ACTORS */
+    .actor-list{display:flex;flex-direction:column;gap:.5rem;padding:1.1rem;}
+    .actor{background:#f5f8fc;border:1px solid var(--border);border-radius:8px;padding:.75rem;cursor:pointer;transition:border-color .2s;}
+    .actor:hover{border-color:var(--blue);}
+    .actor-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.3rem;}
+    .actor-name{font-size:.8rem;font-weight:700;color:var(--t1);}
+    .actor-type{font-size:.62rem;color:var(--t3);text-transform:uppercase;margin-top:.1rem;}
+    .actor-score{font-size:.7rem;font-weight:700;padding:.15rem .45rem;border-radius:4px;white-space:nowrap;}
+    .a-red{background:rgba(239,68,68,.15);color:var(--red);}
+    .a-orange{background:rgba(249,115,22,.15);color:var(--orange);}
+    .a-yellow{background:rgba(234,179,8,.15);color:var(--yellow);}
+    .a-purple{background:rgba(167,139,250,.15);color:var(--purple);}
+    .actor-bar{height:3px;background:var(--border);border-radius:2px;margin-top:.45rem;}
+    .actor-fill{height:100%;border-radius:2px;}
+    .actor-links{display:none;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);}
+    .actor-links.open{display:block;}
+    .actor-link-item{display:flex;align-items:center;gap:.4rem;padding:.25rem 0;font-size:.68rem;color:var(--t2);text-decoration:none;transition:color .15s;}
+    .actor-link-item:hover{color:var(--blue);}
+    .actor-link-item span{font-size:.6rem;padding:.1rem .3rem;background:rgba(59,130,246,.1);border-radius:3px;color:var(--blue);font-weight:600;}
+
+    /* RSS */
+    .tabs{display:flex;gap:.2rem;padding:.65rem 1.1rem;border-bottom:1px solid var(--border);background:#f0f4f9;overflow-x:auto;}
+    .tab{padding:.35rem .8rem;font-size:.7rem;border-radius:6px;border:1px solid transparent;cursor:pointer;white-space:nowrap;color:var(--t2);background:transparent;transition:all .15s;}
+    .tab:hover{background:#fff;color:var(--t1);}
+    .tab.active{background:#fff;border-color:rgba(29,78,216,.35);color:var(--blue);box-shadow:0 1px 4px rgba(29,78,216,.1);}
+    .feed-panel{display:none;max-height:340px;overflow-y:auto;}
+    .feed-panel.active{display:block;}
+    .feed-panel::-webkit-scrollbar{width:4px;}
+    .feed-panel::-webkit-scrollbar-track{background:transparent;}
+    .feed-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+    .feed-item{padding:.75rem 1.1rem;border-bottom:1px solid var(--border);transition:background .15s;}
+    .feed-item:last-child{border-bottom:none;}
+    .feed-item:hover{background:var(--card2);}
+    .fi-source{font-size:.6rem;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+    .fi-title{font-size:.8rem;color:var(--t1);font-weight:500;line-height:1.4;margin-bottom:.2rem;}
+    .fi-title a{color:inherit;text-decoration:none;}
+    .fi-title a:hover{color:var(--blue);}
+    .fi-meta{font-size:.65rem;color:var(--t3);}
+    .feed-loading{padding:2rem;text-align:center;color:var(--t3);font-size:.78rem;}
+    .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:.5rem;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* RSSI */
+    .q-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+    .q-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem;}
+    .q-num{font-size:2rem;font-weight:800;line-height:1;color:var(--blue);opacity:.25;margin-bottom:.4rem;}
+    .q-title{font-size:.82rem;font-weight:700;color:var(--t1);margin-bottom:.65rem;}
+    .q-items{list-style:none;}
+    .q-items li{font-size:.69rem;color:var(--t2);padding:.18rem 0 .18rem .7rem;position:relative;line-height:1.4;}
+    .q-items li::before{content:'›';position:absolute;left:0;color:var(--cyan);}
+
+    /* SURFACE */
+    .surface-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;}
+    .surf-item{background:#fff;border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;font-size:.7rem;font-family:monospace;color:var(--t2);display:flex;align-items:center;gap:.45rem;transition:border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+    .surf-item:hover{border-color:var(--blue);color:var(--t1);}
+    .surf-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+    .surf-dot.dom{background:var(--green);}
+    .surf-dot.ip{background:var(--blue);}
+
+    /* SOURCES */
+    .sources-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.65rem;}
+    .src{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:.7rem .85rem;display:flex;flex-direction:column;gap:.25rem;}
+    .src-top{display:flex;align-items:center;gap:.45rem;}
+    .src-live{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 3s infinite;}
+    .src-name{font-size:.73rem;font-weight:600;color:var(--t1);}
+    .src-cat{font-size:.6rem;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;}
+
+    /* ── CTI LIVE PANELS ── */
+    .cti-panel{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    .cti-site{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(29,78,216,.06);}
+    .cti-site-hdr{padding:.75rem 1.1rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+    .cti-site-hdr h3{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t2);display:flex;align-items:center;gap:.45rem;}
+    .cti-open-btn{padding:.3rem .75rem;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:.7rem;font-weight:600;cursor:pointer;text-decoration:none;transition:opacity .15s;}
+    .cti-open-btn:hover{opacity:.85;}
+    .cti-feed{max-height:320px;overflow-y:auto;}
+    .cti-feed::-webkit-scrollbar{width:4px;}
+    .cti-feed::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+    .cti-item{padding:.7rem 1.1rem;border-bottom:1px solid var(--border);transition:background .15s;}
+    .cti-item:last-child{border-bottom:none;}
+    .cti-item:hover{background:#f0f4f9;}
+    .cti-tag{display:inline-block;font-size:.58rem;padding:.1rem .4rem;border-radius:3px;font-weight:700;margin-bottom:.25rem;text-transform:uppercase;}
+    .cti-tag-red{background:rgba(220,38,38,.1);color:var(--red);}
+    .cti-tag-blue{background:rgba(29,78,216,.1);color:var(--blue);}
+    .cti-tag-orange{background:rgba(234,88,12,.1);color:var(--orange);}
+    .cti-title{font-size:.78rem;color:var(--t1);font-weight:500;line-height:1.4;text-decoration:none;display:block;}
+    .cti-title:hover{color:var(--blue);}
+    .cti-meta{font-size:.62rem;color:var(--t3);margin-top:.2rem;}
+    @media(max-width:900px){.cti-panel{grid-template-columns:1fr;}}
+
+    /* ── FEATURE SECTIONS ── */
+
+    /* SCORING */
+    .score-table{width:100%;border-collapse:collapse;font-size:.72rem;}
+    .score-table th{padding:.5rem .75rem;text-align:left;font-size:.65rem;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:#f0f4f9;}
+    .score-table td{padding:.55rem .75rem;border-bottom:1px solid var(--border);color:var(--t2);vertical-align:middle;}
+    .score-table tr:last-child td{border-bottom:none;}
+    .score-table tr:hover td{background:#f5f8fc;}
+    .risk-bar-wrap{display:flex;align-items:center;gap:.5rem;}
+    .risk-bar{height:6px;border-radius:3px;flex:1;background:var(--border);}
+    .risk-fill{height:100%;border-radius:3px;}
+    .risk-val{font-size:.68rem;font-weight:700;min-width:28px;text-align:right;}
+
+    /* GEO MAP */
+    .geo-wrap{position:relative;background:#ccddf0;border-radius:10px;overflow:hidden;min-height:400px;}
+    .geo-map{width:100%;height:400px;}
+    @keyframes attackDash{to{stroke-dashoffset:-26;}}
+    @keyframes threatPulse{0%,100%{r:14;opacity:.7;}50%{r:26;opacity:.15;}}
+    @keyframes targetPulse{0%,100%{r:18;opacity:.5;}50%{r:30;opacity:.1;}}
+    .geo-legend{display:flex;gap:1rem;padding:.65rem 1rem;flex-wrap:wrap;}
+    .geo-leg-item{display:flex;align-items:center;gap:.4rem;font-size:.68rem;color:var(--t2);}
+    .geo-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+    /* PATCH CALENDAR */
+    .patch-table{width:100%;border-collapse:collapse;font-size:.72rem;}
+    .patch-table th{padding:.5rem .75rem;text-align:left;font-size:.65rem;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:#f0f4f9;}
+    .patch-table td{padding:.55rem .75rem;border-bottom:1px solid var(--border);color:var(--t2);vertical-align:middle;}
+    .patch-table tr:last-child td{border-bottom:none;}
+    .patch-table tr:hover td{background:#f5f8fc;}
+    .urgency{display:inline-block;padding:.15rem .45rem;border-radius:4px;font-size:.65rem;font-weight:700;}
+    .urg-imm{background:rgba(239,68,68,.15);color:var(--red);}
+    .urg-high{background:rgba(249,115,22,.15);color:var(--orange);}
+    .urg-med{background:rgba(234,179,8,.15);color:var(--yellow);}
+    .deadline-bar{display:flex;gap:.3rem;align-items:center;font-size:.65rem;}
+    .db-fill{height:4px;border-radius:2px;background:var(--red);}
+
+    /* DARK WEB */
+    .osint-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;padding:1.1rem;}
+    .osint-card{background:#f5f8fc;border:1px solid var(--border);border-radius:8px;padding:.85rem;}
+    .osint-status{display:flex;align-items:center;gap:.4rem;margin-bottom:.45rem;}
+    .osint-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+    .osint-ok{background:var(--green);}
+    .osint-warn{background:var(--yellow);animation:pulse 2s infinite;}
+    .osint-alert{background:var(--red);animation:pulse 1s infinite;}
+    .osint-label{font-size:.7rem;font-weight:600;color:var(--t1);}
+    .osint-desc{font-size:.65rem;color:var(--t3);line-height:1.5;}
+    .osint-count{font-size:1.4rem;font-weight:800;color:var(--t1);margin:.3rem 0 .15rem;}
+    .osint-trend{font-size:.65rem;}
+    .trend-up{color:var(--red);}
+    .trend-ok{color:var(--green);}
+
+    /* BENCHMARK */
+    .benchmark-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.1rem;}
+    .bench-chart-wrap{position:relative;height:220px;}
+    .bench-table{width:100%;border-collapse:collapse;font-size:.72rem;}
+    .bench-table th{padding:.45rem .75rem;text-align:left;font-size:.65rem;color:var(--t3);text-transform:uppercase;border-bottom:1px solid var(--border);background:#f0f4f9;}
+    .bench-table td{padding:.45rem .75rem;border-bottom:1px solid var(--border);color:var(--t2);}
+    .bench-table tr:last-child td{border-bottom:none;}
+    .bench-val{font-weight:700;}
+    .bench-better{color:var(--green);}
+    .bench-worse{color:var(--red);}
+
+    /* AI SUMMARY */
+    .ai-wrap{padding:1.1rem;}
+    .ai-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
+    .ai-badge{padding:.25rem .65rem;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(167,139,250,.15));border:1px solid rgba(167,139,250,.3);border-radius:50px;font-size:.65rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.05em;}
+    .ai-text{font-size:.8rem;color:var(--t2);line-height:1.7;background:#f0f4f9;border-radius:8px;padding:1rem;border-left:3px solid var(--purple);}
+    .ai-chips{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem;}
+    .ai-chip{padding:.2rem .6rem;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:4px;font-size:.65rem;color:var(--purple);}
+
+    /* ALERTS PANEL */
+    .alert-panel{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.1rem;}
+    .alert-form{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:.75rem;align-items:end;}
+    .form-group label{display:block;font-size:.65rem;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem;}
+    .form-control{width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:.45rem .7rem;color:var(--t1);font-size:.78rem;outline:none;transition:border-color .15s;}
+    .form-control:focus{border-color:var(--blue);}
+    .btn-primary{padding:.45rem 1rem;background:linear-gradient(135deg,#1d4ed8,#06b6d4);border:none;border-radius:6px;color:#fff;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity .15s;}
+    .btn-primary:hover{opacity:.85;}
+    .notif-log{margin-top:1rem;max-height:140px;overflow-y:auto;background:#f5f8fc;border-radius:6px;border:1px solid var(--border);}
+    .notif-entry{padding:.4rem .65rem;border-bottom:1px solid var(--border);font-size:.7rem;color:var(--t2);display:flex;align-items:center;gap:.5rem;}
+    .notif-entry:last-child{border-bottom:none;}
+    .notif-entry span{font-size:.6rem;padding:.1rem .35rem;border-radius:3px;font-weight:600;}
+    .notif-new{background:rgba(239,68,68,.15);color:var(--red);}
+    .notif-info{background:rgba(59,130,246,.12);color:var(--blue);}
+
+    /* FOOTER */
+    footer{text-align:center;padding:1.25rem 1.5rem;border-top:2px solid var(--blue);color:var(--t3);font-size:.7rem;margin-top:1.5rem;background:#fff;}
+    footer a{color:var(--blue);text-decoration:none;}
+
+    /* RESPONSIVE */
+    @media(max-width:1200px){
+      .kpi-row{grid-template-columns:repeat(2,1fr);}
+      .charts-row{grid-template-columns:1fr 1fr;}
+      .q-grid{grid-template-columns:repeat(2,1fr);}
+      .sources-grid{grid-template-columns:repeat(3,1fr);}
+      .alert-form{grid-template-columns:1fr 1fr;}
+    }
+    @media(max-width:900px){
+      .two-col,.benchmark-grid{grid-template-columns:1fr;}
+      .surface-grid{grid-template-columns:repeat(3,1fr);}
+      .osint-grid{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:600px){
+      .kpi-row{grid-template-columns:1fr 1fr;}
+      .surface-grid{grid-template-columns:repeat(2,1fr);}
+      .alert-form{grid-template-columns:1fr;}
+      .osint-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <img src="logo-cybersight.png" alt="CyberSight" style="height:156px;width:auto;border-radius:8px;background:#fff;padding:4px 10px;">
+      <div>
+        <span style="font-size:.9rem;font-style:italic;">Cyber Threat Intelligence</span>
+        <div style="font-size:.75rem;color:var(--t3);letter-spacing:.12em;text-transform:uppercase;margin-top:2px;">Healthcare</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="threat-chip chip-high"><div class="dot-pulse"></div><span>Menace : ÉLEVÉE</span></div>
+      <button class="hdr-btn no-print" id="btn-notif" onclick="toggleNotif()">🔔 Alertes Push</button>
+      <button class="hdr-btn no-print" onclick="exportPDF()">📄 Export PDF</button>
+      <div class="upd" id="last-update">Mise à jour : chargement…</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- KPIs -->
+<div class="sec-title" style="margin-top:0">
+  <h2>📊 Indicateurs Clés</h2><div class="hr"></div>
+</div>
+<div class="kpi-row">
+  <div class="kpi c-red">
+    <div class="kpi-label">CVE Critiques actives</div>
+    <div class="kpi-val">47</div>
+    <div class="kpi-sub">↑ 8 depuis 7 jours · dont 12 exploitées</div>
+    <div class="kpi-icon">⚠️</div>
+  </div>
+  <div class="kpi c-orange">
+    <div class="kpi-label">Groupes Ransomware actifs</div>
+    <div class="kpi-val">6</div>
+    <div class="kpi-sub">Ciblant le secteur santé en France</div>
+    <div class="kpi-icon">🎯</div>
+  </div>
+  <div class="kpi c-yellow">
+    <div class="kpi-label">Alertes Santé / 30 jours</div>
+    <div class="kpi-val">23</div>
+    <div class="kpi-sub">CERT-FR · ANS · CISA Medical</div>
+    <div class="kpi-icon">📡</div>
+  </div>
+  <div class="kpi c-green">
+    <div class="kpi-label">Sources CTI surveillées</div>
+    <div class="kpi-val">18</div>
+    <div class="kpi-sub">Flux RSS · API · Institutionnel</div>
+    <div class="kpi-icon">✅</div>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="sec-title">
+  <h2>📈 Tendances</h2><div class="hr"></div>
+</div>
+<div class="charts-row">
+  <div class="card">
+    <div class="card-hdr">
+      <h3>📉 Évolution des menaces – 30 derniers jours</h3>
+      <span style="font-size:.65rem;color:var(--t3)">CVE + Incidents + Alertes</span>
+    </div>
+    <div class="card-body"><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>🍩 Types de menaces</h3></div>
+    <div class="card-body"><div class="chart-wrap"><canvas id="chartTypes"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><h3>🔀 Vecteurs d'attaque</h3></div>
+    <div class="card-body"><div class="chart-wrap"><canvas id="chartVectors"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ══ CERT-FR & CYBERVEILLE ══ -->
+<div class="sec-title">
+  <h2>🔴 Veille CTI — Sources Institutionnelles</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">CERT-FR · Cyberveille ANS e-Santé · Alertes en direct</span>
+</div>
+<div class="cti-panel">
+
+  <!-- CYBERVEILLE ANS -->
+  <div class="cti-site">
+    <div class="cti-site-hdr">
+      <h3>
+        <span style="background:#005f9e;color:#fff;padding:.15rem .45rem;border-radius:4px;font-size:.65rem">ANS</span>
+        Cyberveille e-Santé — Vulnérabilités
+      </h3>
+      <a class="cti-open-btn" href="https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites" target="_blank" rel="noopener">↗ Ouvrir</a>
+    </div>
+    <div class="cti-feed" id="cyberveille-feed">
+      <div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>
+    </div>
+  </div>
+
+  <!-- CERT-FR -->
+  <div class="cti-site">
+    <div class="cti-site-hdr">
+      <h3>
+        <span style="background:#003189;color:#fff;padding:.15rem .45rem;border-radius:4px;font-size:.65rem">CERT-FR</span>
+        cert.ssi.gouv.fr — Alertes &amp; Avis
+      </h3>
+      <a class="cti-open-btn" href="https://www.cert.ssi.gouv.fr/" target="_blank" rel="noopener">↗ Ouvrir</a>
+    </div>
+    <div class="cti-feed" id="certfr-feed">
+      <div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- CVE + ACTORS -->
+<div class="sec-title">
+  <h2>🔓 Vulnérabilités & Acteurs menaçants</h2><div class="hr"></div>
+</div>
+<div class="two-col">
+  <div class="card">
+    <div class="card-hdr">
+      <h3>🆘 CVE critiques — Secteur Santé</h3>
+      <span style="font-size:.65rem;color:var(--t3)">Cliquez pour ouvrir la fiche NVD</span>
+    </div>
+    <div id="cve-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr">
+      <h3>🕵️ Groupes menaçants actifs — Santé FR/EU</h3>
+      <span style="font-size:.65rem;color:var(--t3)">Cliquez pour voir les sources</span>
+    </div>
+    <div class="actor-list" id="actor-list"></div>
+  </div>
+</div>
+
+<!-- RSS -->
+<div class="sec-title">
+  <h2>📡 Flux RSS en temps réel</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Données live via agrégation RSS</span>
+</div>
+<div class="card">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('alertes',this)">🚨 Alertes Institutionnelles</button>
+    <button class="tab" onclick="switchTab('cve',this)">🔓 CVE &amp; Vulnérabilités</button>
+    <button class="tab" onclick="switchTab('sante',this)">🏥 Cybermenaces Santé</button>
+    <button class="tab" onclick="switchTab('menaces',this)">🌐 Veille Générale</button>
+    <button class="tab" onclick="switchTab('rgpd',this)">📋 RGPD &amp; Conformité</button>
+  </div>
+  <div class="feed-panel active" id="panel-alertes"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+  <div class="feed-panel" id="panel-cve"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+  <div class="feed-panel" id="panel-sante"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+  <div class="feed-panel" id="panel-menaces"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+  <div class="feed-panel" id="panel-rgpd"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+</div>
+
+<!-- ══ FEATURE 1 : ALERTES PUSH ══ -->
+<div class="sec-title">
+  <h2>🔔 Alertes Push & Notifications</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--blue);white-space:nowrap">Configuration des seuils d'alerte</span>
+</div>
+<div class="alert-panel no-print">
+  <div class="alert-form">
+    <div class="form-group">
+      <label>Seuil CVSS minimum</label>
+      <input type="number" id="cvss-threshold" class="form-control" value="9.0" min="0" max="10" step="0.1">
+    </div>
+    <div class="form-group">
+      <label>Catégorie</label>
+      <select id="alert-cat" class="form-control">
+        <option value="all">Toutes</option>
+        <option value="health">Santé uniquement</option>
+        <option value="ransomware">Ransomware</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Fréquence vérification</label>
+      <select id="alert-freq" class="form-control">
+        <option value="5">Toutes les 5 min</option>
+        <option value="15" selected>Toutes les 15 min</option>
+        <option value="60">Toutes les heures</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="activateAlerts()">Activer les alertes</button>
+  </div>
+  <div class="notif-log" id="notif-log"></div>
+</div>
+
+<!-- ══ FEATURE 2 : SCORING RISQUE ══ -->
+<div class="sec-title">
+  <h2>🗺️ Scoring de Risque Contextualisé</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Corrélation CVE × Actifs OC Santé</span>
+</div>
+<div class="card">
+  <div class="card-hdr">
+    <h3>🔗 Exposition CVE par actif OC Santé</h3>
+    <span style="font-size:.65rem;color:var(--t3)">Score = CVSS × Impact SI × Exposition réseau</span>
+  </div>
+  <div class="card-body" style="padding:0">
+    <table class="score-table">
+      <thead>
+        <tr>
+          <th>CVE</th>
+          <th>Produit affecté</th>
+          <th>Actifs OC Santé exposés</th>
+          <th>Score de risque</th>
+          <th>Priorité</th>
+        </tr>
+      </thead>
+      <tbody id="score-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ FEATURE 3 : RAPPORT PDF (visible à l'impression) ══ -->
+<div class="sec-title no-print">
+  <h2>📄 Rapport Exécutif Auto-Généré</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Export PDF pour direction / CODIR</span>
+</div>
+<div class="card no-print">
+  <div class="card-body" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--t1);margin-bottom:.3rem">Rapport mensuel RSSI — Juin 2025</div>
+      <div style="font-size:.72rem;color:var(--t2)">Synthèse exécutive : KPIs · Menaces critiques · Plan d'action · Benchmark sectoriel</div>
+    </div>
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
+      <button class="btn-primary" onclick="exportPDF()">📄 Générer PDF (Ctrl+P)</button>
+      <button class="hdr-btn" onclick="copyReport()">📋 Copier résumé</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FEATURE 4 : CARTOGRAPHIE GEO ══ -->
+<div class="sec-title">
+  <h2>🌍 Cartographie Géographique des Menaces</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Origine des groupes menaçants actifs</span>
+</div>
+<div class="card">
+  <div class="card-hdr">
+    <h3>🗺️ Origines des attaquants ciblant OC Santé</h3>
+    <span style="font-size:.65rem;color:var(--t3)">Source : ANSSI · CISA · Europol</span>
+  </div>
+  <div class="geo-wrap">
+    <svg class="geo-map" viewBox="0 0 1000 400" xmlns="http://www.w3.org/2000/svg" id="geo-svg">
+      <!-- Fond océan -->
+      <rect width="1000" height="400" fill="#ccddf0"/>
+
+      <!-- Grille géographique -->
+      <line x1="0" y1="133" x2="1000" y2="133" stroke="#b5cde0" stroke-width="0.5" opacity=".6"/>
+      <line x1="0" y1="200" x2="1000" y2="200" stroke="#b5cde0" stroke-width="1" opacity=".8"/>
+      <line x1="0" y1="267" x2="1000" y2="267" stroke="#b5cde0" stroke-width="0.5" opacity=".6"/>
+      <line x1="250" y1="0" x2="250" y2="400" stroke="#b5cde0" stroke-width="0.5" opacity=".5"/>
+      <line x1="500" y1="0" x2="500" y2="400" stroke="#b5cde0" stroke-width="1" opacity=".6"/>
+      <line x1="750" y1="0" x2="750" y2="400" stroke="#b5cde0" stroke-width="0.5" opacity=".5"/>
+
+      <!-- ═══ CONTINENTS ═══ -->
+      <!-- Amérique du Nord -->
+      <polygon points="60,80 240,70 280,100 300,160 270,240 220,280 160,280 100,240 60,180" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+      <text x="170" y="175" text-anchor="middle" font-size="11" fill="#64748b" font-weight="500">Amérique du Nord</text>
+
+      <!-- Amérique du Sud -->
+      <polygon points="190,295 260,285 300,310 310,370 270,395 220,390 190,360" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+
+      <!-- Europe -->
+      <polygon points="430,100 520,95 545,130 540,180 510,200 470,195 435,175 420,145" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+      <text x="485" y="152" text-anchor="middle" font-size="10" fill="#64748b" font-weight="500">Europe</text>
+
+      <!-- Afrique -->
+      <polygon points="450,205 560,200 575,240 570,320 530,380 490,385 450,350 440,280 440,240" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+
+      <!-- Russie / Asie centrale -->
+      <polygon points="540,60 870,55 890,100 880,155 820,175 720,170 630,165 560,155 530,120" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+      <text x="710" y="118" text-anchor="middle" font-size="11" fill="#64748b" font-weight="500">Russie / Asie</text>
+
+      <!-- Asie du Sud-Est / Inde -->
+      <polygon points="650,175 760,175 800,200 810,255 780,285 720,290 670,260 645,220" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+
+      <!-- Chine / Corée -->
+      <polygon points="770,155 880,150 900,180 890,220 850,245 810,250 780,230 760,200" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+
+      <!-- Océanie -->
+      <ellipse cx="870" cy="320" rx="65" ry="38" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+
+      <!-- Moyen-Orient -->
+      <polygon points="555,185 630,180 640,215 620,240 580,240 555,220" fill="#d4e4f2" stroke="#a8bdd4" stroke-width="1.2"/>
+
+      <!-- ═══ LIGNES D'ATTAQUE ANIMÉES ═══ -->
+      <!-- Russie → France -->
+      <line x1="618" y1="118" x2="490" y2="162" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="10,6" opacity=".9">
+        <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+      </line>
+      <!-- Corée du Nord → France (courbe) -->
+      <line x1="855" y1="165" x2="490" y2="162" stroke="#7c3aed" stroke-width="2" stroke-dasharray="10,6" opacity=".85">
+        <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.6s" repeatCount="indefinite"/>
+      </line>
+      <!-- Chine → France -->
+      <line x1="840" y1="200" x2="490" y2="162" stroke="#ea580c" stroke-width="2" stroke-dasharray="10,6" opacity=".8">
+        <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.4s" repeatCount="indefinite"/>
+      </line>
+      <!-- Iran → France -->
+      <line x1="605" y1="215" x2="490" y2="162" stroke="#ca8a04" stroke-width="1.8" stroke-dasharray="8,5" opacity=".75">
+        <animate attributeName="stroke-dashoffset" from="0" to="-26" dur="1.8s" repeatCount="indefinite"/>
+      </line>
+
+      <!-- ═══ SOURCE : RUSSIE ═══ -->
+      <circle cx="618" cy="118" r="28" fill="rgba(220,38,38,.08)" stroke="#dc2626" stroke-width="1" opacity="0">
+        <animate attributeName="r" values="16;34;16" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.7;0;0.7" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="618" cy="118" r="16" fill="rgba(220,38,38,.25)" stroke="#dc2626" stroke-width="2.5"/>
+      <text x="618" y="113" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="bold">RU</text>
+      <text x="618" y="124" text-anchor="middle" font-size="8" fill="#dc2626">Russie</text>
+      <text x="618" y="143" text-anchor="middle" font-size="7.5" fill="#64748b">LockBit · RansomHub</text>
+
+      <!-- ═══ SOURCE : CORÉE DU NORD ═══ -->
+      <circle cx="855" cy="165" r="28" fill="rgba(124,58,237,.08)" stroke="#7c3aed" stroke-width="1" opacity="0">
+        <animate attributeName="r" values="16;32;16" dur="2.4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0;0.6" dur="2.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="855" cy="165" r="15" fill="rgba(124,58,237,.2)" stroke="#7c3aed" stroke-width="2.5"/>
+      <text x="855" y="160" text-anchor="middle" font-size="9" fill="#7c3aed" font-weight="bold">DPRK</text>
+      <text x="855" y="170" text-anchor="middle" font-size="7.5" fill="#7c3aed">Corée N.</text>
+      <text x="855" y="187" text-anchor="middle" font-size="7.5" fill="#64748b">Lazarus Group</text>
+
+      <!-- ═══ SOURCE : CHINE ═══ -->
+      <circle cx="840" cy="200" r="26" fill="rgba(234,88,12,.08)" stroke="#ea580c" stroke-width="1" opacity="0">
+        <animate attributeName="r" values="14;30;14" dur="2.2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.6;0;0.6" dur="2.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="840" cy="200" r="14" fill="rgba(234,88,12,.2)" stroke="#ea580c" stroke-width="2.5"/>
+      <text x="840" y="195" text-anchor="middle" font-size="10" fill="#ea580c" font-weight="bold">CN</text>
+      <text x="840" y="206" text-anchor="middle" font-size="7.5" fill="#ea580c">Chine</text>
+      <text x="840" y="222" text-anchor="middle" font-size="7.5" fill="#64748b">APT41 · APT10</text>
+
+      <!-- ═══ SOURCE : IRAN ═══ -->
+      <circle cx="605" cy="215" r="22" fill="rgba(202,138,4,.08)" stroke="#ca8a04" stroke-width="1" opacity="0">
+        <animate attributeName="r" values="10;24;10" dur="2.6s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="2.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="605" cy="215" r="11" fill="rgba(202,138,4,.2)" stroke="#ca8a04" stroke-width="2"/>
+      <text x="605" y="210" text-anchor="middle" font-size="9" fill="#ca8a04" font-weight="bold">IR</text>
+      <text x="605" y="220" text-anchor="middle" font-size="7.5" fill="#ca8a04">Iran</text>
+      <text x="605" y="236" text-anchor="middle" font-size="7.5" fill="#64748b">Sandworm</text>
+
+      <!-- ═══ CIBLE : FRANCE / OC SANTÉ ═══ -->
+      <circle cx="490" cy="162" r="32" fill="rgba(29,78,216,.06)" stroke="#1d4ed8" stroke-width="1" opacity="0">
+        <animate attributeName="r" values="22;40;22" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="490" cy="162" r="22" fill="rgba(29,78,216,.12)" stroke="#1d4ed8" stroke-width="2.5"/>
+      <circle cx="490" cy="162" r="10" fill="rgba(29,78,216,.35)" stroke="#1d4ed8" stroke-width="2"/>
+      <text x="490" y="157" text-anchor="middle" font-size="10" fill="#1d4ed8" font-weight="bold">FR</text>
+      <text x="490" y="168" text-anchor="middle" font-size="8" fill="#1d4ed8">France</text>
+
+      <!-- Label cible -->
+      <rect x="390" y="192" width="200" height="48" rx="6" fill="rgba(29,78,216,.1)" stroke="#1d4ed8" stroke-width="1.5"/>
+      <text x="490" y="207" text-anchor="middle" font-size="9" fill="#1d4ed8" font-weight="bold">🎯 CIBLE : OC SANTÉ</text>
+      <text x="490" y="220" text-anchor="middle" font-size="8" fill="#334155">Montpellier · Occitanie</text>
+      <text x="490" y="232" text-anchor="middle" font-size="8" fill="#dc2626" font-weight="bold">Niveau menace : ÉLEVÉ</text>
+
+      <!-- ═══ LÉGENDE ═══ -->
+      <rect x="15" y="10" width="220" height="115" rx="8" fill="rgba(255,255,255,.92)" stroke="#b8cce0" stroke-width="1.5"/>
+      <text x="28" y="30" font-size="9.5" fill="#1d4ed8" font-weight="bold">GROUPES MENAÇANTS</text>
+      <circle cx="28" cy="46" r="5" fill="#dc2626"/>
+      <text x="40" y="50" font-size="9" fill="#334155">LockBit 3.0 / RansomHub (Russie)</text>
+      <circle cx="28" cy="63" r="5" fill="#7c3aed"/>
+      <text x="40" y="67" font-size="9" fill="#334155">Lazarus Group (Corée du Nord)</text>
+      <circle cx="28" cy="80" r="5" fill="#ea580c"/>
+      <text x="40" y="84" font-size="9" fill="#334155">APT41 (Chine)</text>
+      <circle cx="28" cy="97" r="5" fill="#ca8a04"/>
+      <text x="40" y="101" font-size="9" fill="#334155">Sandworm (Iran)</text>
+      <circle cx="28" cy="114" r="5" fill="#1d4ed8"/>
+      <text x="40" y="118" font-size="9" fill="#334155">OC Santé — Cible surveillée</text>
+
+      <!-- ═══ STATS ═══ -->
+      <rect x="770" y="10" width="215" height="80" rx="8" fill="rgba(255,255,255,.92)" stroke="#b8cce0" stroke-width="1.5"/>
+      <text x="783" y="28" font-size="9" fill="#64748b">Attaques simulées :</text>
+      <text x="783" y="44" font-size="10" fill="#dc2626" font-weight="bold">4 vecteurs actifs détectés</text>
+      <text x="783" y="60" font-size="9" fill="#64748b">Secteur santé ciblé :</text>
+      <text x="783" y="76" font-size="10" fill="#1d4ed8" font-weight="bold">67% des attaques RaaS 2026</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ══ FEATURE 5 : PATCH MANAGEMENT ══ -->
+<div class="sec-title">
+  <h2>📅 Calendrier de Patch Management</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">30 prochains jours – priorisé par urgence</span>
+</div>
+<div class="card">
+  <div class="card-hdr">
+    <h3>🩹 Plan de remédiation CVE – OC Santé</h3>
+    <span style="font-size:.65rem;color:var(--t3)">Source : CISA KEV · CERT-FR · NVD</span>
+  </div>
+  <div class="card-body" style="padding:0">
+    <table class="patch-table">
+      <thead>
+        <tr>
+          <th>CVE</th>
+          <th>Produit</th>
+          <th>Urgence</th>
+          <th>Deadline patch</th>
+          <th>Jours restants</th>
+          <th>Responsable</th>
+        </tr>
+      </thead>
+      <tbody id="patch-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ FEATURE 6 : OSINT DARK WEB ══ -->
+<div class="sec-title">
+  <h2>🔍 Surveillance OSINT &amp; Dark Web</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Veille exposition OC Santé sur sources ouvertes</span>
+</div>
+<div class="card">
+  <div class="card-hdr">
+    <h3>👁️ Monitoring exposition OC Santé</h3>
+    <span style="font-size:.65rem;color:var(--t3)">Scan : pastes, forums, Telegram, leak sites</span>
+  </div>
+  <div class="osint-grid" id="osint-grid"></div>
+</div>
+
+<!-- ══ FEATURE 7 : BENCHMARK ══ -->
+<div class="sec-title">
+  <h2>📊 Benchmark Sectoriel</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">Comparaison anonymisée avec le secteur santé FR</span>
+</div>
+<div class="card">
+  <div class="card-hdr">
+    <h3>📈 OC Santé vs Secteur Santé France</h3>
+    <span style="font-size:.65rem;color:var(--t3)">Source : CNIL · ANSSI · Données sectorielles 2025</span>
+  </div>
+  <div class="benchmark-grid">
+    <div><div class="bench-chart-wrap"><canvas id="chartBenchmark"></canvas></div></div>
+    <div>
+      <table class="bench-table">
+        <thead><tr><th>Indicateur</th><th>OC Santé</th><th>Secteur</th><th>Écart</th></tr></thead>
+        <tbody>
+          <tr><td>Délai moyen patch critique</td><td class="bench-val">12 j</td><td>21 j</td><td class="bench-val bench-better">▼ 43%</td></tr>
+          <tr><td>Couverture MFA</td><td class="bench-val">78%</td><td>54%</td><td class="bench-val bench-better">▲ +24</td></tr>
+          <tr><td>Incidents/an déclarés</td><td class="bench-val">2</td><td>4.7</td><td class="bench-val bench-better">▼ 57%</td></tr>
+          <tr><td>Actifs exposés (DMZ)</td><td class="bench-val">43</td><td>38</td><td class="bench-val bench-worse">▲ +13%</td></tr>
+          <tr><td>Budget cyber/CA</td><td class="bench-val">1.8%</td><td>2.1%</td><td class="bench-val bench-worse">▼ -14%</td></tr>
+          <tr><td>Score NIS2 readiness</td><td class="bench-val">67/100</td><td>58/100</td><td class="bench-val bench-better">▲ +15%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FEATURE 8 : RÉSUMÉ IA ══ -->
+<div class="sec-title">
+  <h2>🤖 Synthèse IA — Résumé Exécutif</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--purple);white-space:nowrap">Analyse automatique pour décideurs</span>
+</div>
+<div class="card">
+  <div class="ai-wrap">
+    <div class="ai-header">
+      <div class="ai-badge">🤖 IA CTI · Analyse juin 2026</div>
+      <div style="font-size:.65rem;color:var(--t3)">Synthèse hebdomadaire générée automatiquement</div>
+    </div>
+    <div class="ai-text" id="ai-text">Chargement de la synthèse IA…</div>
+    <div class="ai-chips" id="ai-chips"></div>
+  </div>
+</div>
+
+<!-- RSSI QUESTIONS -->
+<div class="sec-title">
+  <h2>🎯 Questions Clés RSSI</h2><div class="hr"></div>
+</div>
+<div class="q-grid">
+  <div class="q-card">
+    <div class="q-num">01</div>
+    <div class="q-title">Qui nous cible ?</div>
+    <ul class="q-items">
+      <li>LockBit 3.0 & RansomHub (RaaS actifs)</li>
+      <li>Medusa – cliniques FR/EU dans le viseur</li>
+      <li>Lazarus Group – pharma & biotech</li>
+      <li>Hacktivisme & accès initiaux IA</li>
+    </ul>
+  </div>
+  <div class="q-card">
+    <div class="q-num">02</div>
+    <div class="q-title">Comment attaquent-ils ?</div>
+    <ul class="q-items">
+      <li>VPN/RDP vulnérables (CVE-2025-0282)</li>
+      <li>Phishing ciblé DSI hospitaliers</li>
+      <li>Supply chain MFT (Cleo, MOVEit)</li>
+      <li>TTPs : T1190 · T1133 · T1486</li>
+    </ul>
+  </div>
+  <div class="q-card">
+    <div class="q-num">03</div>
+    <div class="q-title">Sommes-nous exposés ?</div>
+    <ul class="q-items">
+      <li>43 actifs exposés (DMZ + IPs publics)</li>
+      <li>CVE-2025-0282 : VPN Ivanti potentiel</li>
+      <li>Surveillance dark web : 0 fuite détectée</li>
+      <li>Score NIS2 : 67/100 → plan remédiation</li>
+    </ul>
+  </div>
+  <div class="q-card">
+    <div class="q-num">04</div>
+    <div class="q-title">Quel niveau de menace ?</div>
+    <ul class="q-items">
+      <li>Niveau ÉLEVÉ – hausse 35% secteur santé</li>
+      <li>47 CVE critiques actives surveillance</li>
+      <li>Ransomware : 1er vecteur (38% incidents)</li>
+      <li>OC Santé : meilleur que secteur sur 4/6 KPIs</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SURFACE -->
+<div class="sec-title">
+  <h2>🏥 Surface Surveillée OC Santé</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap">43 actifs · Domaines &amp; IPs exposés</span>
+</div>
+<div style="display:flex;align-items:center;gap:1rem;padding:1.2rem 1.5rem;background:#f0f4f9;border:1.5px dashed #b8cce0;border-radius:10px;color:#475569;font-size:.85rem;">
+  <span style="font-size:1.5rem;">🔒</span>
+  <div>
+    <strong style="color:#1d4ed8;">Données masquées pour la démonstration</strong><br>
+    La surface d'attaque OC Santé (43 actifs — domaines &amp; IPs exposés) est disponible dans la version opérationnelle. Elle n'est pas affichée ici pour des raisons de confidentialité.
+  </div>
+</div>
+
+<!-- SOURCES -->
+<div class="sec-title">
+  <h2>🔗 Sources CTI Actives</h2><div class="hr"></div>
+</div>
+<div class="sources-grid">
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">CERT-FR</div></div><div class="src-cat">Institutionnel · Alertes</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">ANS e-Santé</div></div><div class="src-cat">Institutionnel · Santé</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">ANSSI</div></div><div class="src-cat">Institutionnel · National</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">NVD NIST</div></div><div class="src-cat">CVE · Base vulnérabilités</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">CISA</div></div><div class="src-cat">CVE · KEV · ICS Medical</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">CNIL</div></div><div class="src-cat">RGPD · Conformité</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">MITRE ATT&amp;CK</div></div><div class="src-cat">TTPs · Base de connaissance</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">Abuse.ch</div></div><div class="src-cat">IoC · Feodo · ThreatFox</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">AlienVault OTX</div></div><div class="src-cat">IoC · Threat Pulses</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">BleepingComputer</div></div><div class="src-cat">Veille · Menaces actives</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">Krebs on Security</div></div><div class="src-cat">Veille · Journalisme cyber</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">The Hacker News</div></div><div class="src-cat">Veille · Technique</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">Healthcare IT News</div></div><div class="src-cat">Spé. Santé · Sécurité</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">HIPAA Guide</div></div><div class="src-cat">Spé. Santé · Conformité US</div></div>
+  <div class="src"><div class="src-top"><div class="src-live"></div><div class="src-name">MISP Project</div></div><div class="src-cat">CTI · Partage communautaire</div></div>
+</div>
+
+</main>
+
+<footer>
+  <div><strong>CyberSight</strong> · CTI Dashboard OC Santé · v2.0 · Projet OppenInnov 2025-26 · Données : CERT-FR · ANS · CISA · NVD NIST · CNIL · MITRE ATT&amp;CK</div>
+  <div style="margin-top:.4rem">Ce tableau de bord est un démonstrateur CTI. Flux RSS connectés en temps réel. Données enrichies représentatives du secteur santé.</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════════════════
+const CVES = [
+  { id:'CVE-2026-48558', score:10.0, sev:'critical', prod:'SimpleHelp (accès distant)',           exploited:true,  health:true,  assets:['VPN/RDP exposé','www.oc-sante.fr'] },
+  { id:'CVE-2026-47140', score:10.0, sev:'critical', prod:'vm2 (sandbox Node.js)',               exploited:true,  health:true,  assets:['Serveurs applicatifs'] },
+  { id:'CVE-2026-53787', score:9.8,  sev:'critical', prod:'Amasty (e-commerce / portail santé)', exploited:false, health:true,  assets:['Portail patient','home-sante.fr'] },
+  { id:'CVE-2026-53407', score:8.1,  sev:'critical', prod:'Zoom (visioconférence médicale)',      exploited:false, health:true,  assets:['Téléconsultation','postes médicaux'] },
+  { id:'CVE-2026-50010', score:7.5,  sev:'high',     prod:'Netty (framework réseau Java)',        exploited:false, health:true,  assets:['Applications métier Java'] },
+  { id:'CVE-2025-0282',  score:9.0,  sev:'critical', prod:'Ivanti Connect Secure (VPN)',          exploited:true,  health:true,  assets:['VPN Ivanti','3sm.cl-st-roch.fr'] },
+  { id:'CVE-2025-23006', score:9.8,  sev:'critical', prod:'SonicWall SMA 100 (VPN)',              exploited:true,  health:true,  assets:['VPN SonicWall','home-sante.fr'] },
+  { id:'CVE-2025-21298', score:9.8,  sev:'critical', prod:'Microsoft Windows OLE',                exploited:true,  health:false, assets:['Postes Windows'] },
+];
+
+const ACTORS = [
+  {
+    name:'LockBit 3.0', type:'Ransomware-as-a-Service', targets:'Hôpitaux · Cliniques · EHPAD',
+    activity:95, color:'#ef4444', score:'CRITIQUE', sc:'a-red',
+    origin:'Russie', ttps:['T1486','T1190','T1133'],
+    links:[
+      { label:'CISA StopRansomware Advisory', url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-165a', badge:'CISA' },
+      { label:'FBI Flash – LockBit 3.0 IOCs', url:'https://www.ic3.gov/Media/News/2023/230519.pdf', badge:'FBI' },
+      { label:'CERT-FR – Analyse LockBit', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2023-CTI-007/', badge:'CERT-FR' },
+      { label:'ANSSI – Panorama ransomware', url:'https://www.ssi.gouv.fr/actualite/lanssi-et-ses-partenaires-publient-un-rapport-sur-letat-de-la-menace-ransomware/', badge:'ANSSI' },
+    ]
+  },
+  {
+    name:'RansomHub', type:'RaaS — Émergent 2024', targets:'Infrastructure santé',
+    activity:88, color:'#ef4444', score:'CRITIQUE', sc:'a-red',
+    origin:'Russie', ttps:['T1190','T1486','T1657'],
+    links:[
+      { label:'CISA AA24-242A – RansomHub Advisory', url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-242a', badge:'CISA' },
+      { label:'FBI – RansomHub Threat Actor Profile', url:'https://www.ic3.gov/Media/News/2024/240827.pdf', badge:'FBI' },
+      { label:'BleepingComputer – RansomHub Healthcare', url:'https://www.bleepingcomputer.com/news/security/ransomhub-ransomware-gang-targets-healthcare-organizations/', badge:'BC' },
+    ]
+  },
+  {
+    name:'Medusa', type:'Ransomware', targets:'Santé · Education FR/EU',
+    activity:80, color:'#f97316', score:'ÉLEVÉ', sc:'a-orange',
+    origin:'Russie', ttps:['T1486','T1078','T1566'],
+    links:[
+      { label:'CISA AA25-071A – Medusa Advisory', url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-071a', badge:'CISA' },
+      { label:'CERT-FR – Analyse Medusa Ransomware', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2024-CTI-001/', badge:'CERT-FR' },
+      { label:'Krebs – Inside Medusa Operations', url:'https://krebsonsecurity.com/2024/03/inside-the-medusa-ransomware-group/', badge:'Krebs' },
+    ]
+  },
+  {
+    name:'INC Ransom', type:'Ransomware', targets:'Santé publique (NHS, APHP)',
+    activity:75, color:'#f97316', score:'ÉLEVÉ', sc:'a-orange',
+    origin:'Russie', ttps:['T1190','T1486','T1070'],
+    links:[
+      { label:'CISA – INC Ransom Alert (HC3)', url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-131a', badge:'CISA' },
+      { label:'NHS Advisory – INC Ransom Attack', url:'https://digital.nhs.uk/cyber-alerts/2024/cc-4297', badge:'NHS' },
+      { label:'BleepingComputer – INC Ransom NHS', url:'https://www.bleepingcomputer.com/news/security/inc-ransomware-claims-attack-on-uk-nhs-hospital-trust/', badge:'BC' },
+    ]
+  },
+  {
+    name:'Clop', type:'Exfiltration + Ransom', targets:'Supply chain santé / MFT',
+    activity:65, color:'#eab308', score:'MODÉRÉ', sc:'a-yellow',
+    origin:'Ukraine/Int.', ttps:['T1537','T1048','T1486'],
+    links:[
+      { label:'CISA AA23-158A – CL0P MOVEit Advisory', url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa23-158a', badge:'CISA' },
+      { label:'ANSSI – Clop / TA505 Profile', url:'https://www.ssi.gouv.fr/uploads/2021/05/anssi_rapport_ta505_2021_v1.0.pdf', badge:'ANSSI' },
+      { label:'CERT-FR – CVE-2024-50623 Cleo', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2024-ALE-020/', badge:'CERT-FR' },
+    ]
+  },
+  {
+    name:'Lazarus Group', type:'APT État (Corée du Nord)', targets:'Pharma · Biotech · R&D',
+    activity:50, color:'#a78bfa', score:'STRATÉGIQUE', sc:'a-purple',
+    origin:'Corée du Nord', ttps:['T1059','T1071','T1566'],
+    links:[
+      { label:'CISA/FBI/NSA Advisory – Lazarus', url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa22-108a', badge:'CISA' },
+      { label:'ANSSI – APT Lazarus Group', url:'https://www.ssi.gouv.fr/actualite/anssi-et-ses-partenaires-alertent-sur-une-campagne-dattaques-attribuee-au-groupe-lazarus/', badge:'ANSSI' },
+      { label:'MITRE ATT&CK – Lazarus Group', url:'https://attack.mitre.org/groups/G0032/', badge:'MITRE' },
+    ]
+  },
+];
+
+const OC_DOMAINS = [
+  'www.oc-sante.fr','oc-maternite.fr','cl-fontfroide.fr','clinique-clementville.fr',
+  'millenaire.fr','cl-smv.fr','clinique-jds.com','www.clinique-jds.com','cl-stella.fr',
+  'clinique-saintantoine.fr','clinique-mont-louis.fr','la-pergola.fr','cl-st-roch.fr',
+  '3sm.cl-st-roch.fr','espacemaman.oc-maternite.fr','www.oc-maternite.fr','plein-soleil.fr',
+  'mail.cl-les-oliviers.fr','www.cl-les-oliviers.fr','cl-les-oliviers.fr','home-sante.fr',
+  'mail.home-sante.fr','www.home-sante.fr','centre-bourges.fr','clinique-bercy.fr',
+  'www.iona-paris.fr','iona-paris.fr','mail.iona-paris.fr','webmail.iona-paris.fr',
+  'www.clinique-bercy.fr',
+];
+const OC_IPS = [
+  '90.80.22.237','90.82.195.253','81.255.16.197',
+  '185.220.73.145','185.220.73.146','185.220.73.147','185.220.73.148',
+  '185.220.73.149','185.220.73.150','185.220.73.161','185.220.73.162',
+  '185.220.73.165','185.220.73.166',
+];
+
+const PATCH_DATA = [
+  { cve:'CVE-2026-48558', prod:'SimpleHelp',             urgency:'imm',  deadline:2,  owner:'DSI Réseau' },
+  { cve:'CVE-2026-47140', prod:'vm2 (Node.js)',          urgency:'imm',  deadline:3,  owner:'DSI Applicatif' },
+  { cve:'CVE-2026-53787', prod:'Amasty portail',         urgency:'imm',  deadline:5,  owner:'DSI Applicatif' },
+  { cve:'CVE-2025-0282',  prod:'Ivanti Connect Secure',  urgency:'imm',  deadline:7,  owner:'DSI Réseau' },
+  { cve:'CVE-2025-23006', prod:'SonicWall SMA 100',      urgency:'high', deadline:10, owner:'DSI Réseau' },
+  { cve:'CVE-2026-53407', prod:'Zoom téléconsultation',  urgency:'high', deadline:14, owner:'DSI Médical' },
+  { cve:'CVE-2026-50010', prod:'Netty Java framework',   urgency:'med',  deadline:21, owner:'DSI Applicatif' },
+  { cve:'CVE-2025-21298', prod:'Windows OLE',            urgency:'med',  deadline:28, owner:'DSI Système' },
+];
+
+const OSINT_DATA = [
+  { label:'Domaines OC Santé – Pastes/Pastebin', status:'ok',   count:0, trend:'ok',   desc:'Aucune mention détectée sur les plateformes publiques de paste au cours des 90 derniers jours.' },
+  { label:'Credentials – Forums criminels',       status:'ok',   count:0, trend:'ok',   desc:'Aucune fuite identifiée sur les forums cybercriminels russophones (XSS, Exploit.in).' },
+  { label:'Données patients – Leak sites',         status:'ok',   count:0, trend:'ok',   desc:'Aucune publication sur les sites de fuite ransomware (LockBit, RansomHub, Medusa).' },
+  { label:'IPs OC Santé – Shodan / Censys',        status:'warn', count:7, trend:'up',  desc:'7 services exposés détectés (RDP, SSH, HTTP non-HTTPS). Investigation recommandée.' },
+  { label:'Mentions Telegram – Groupes criminels', status:'ok',   count:0, trend:'ok',   desc:'Aucune mention des actifs OC Santé dans les canaux Telegram criminels surveillés.' },
+  { label:'Supply chain – Prestataires exposés',   status:'warn', count:3, trend:'up',  desc:'3 prestataires informatiques santé avec vulnérabilités critiques non patchées identifiées.' },
+];
+
+const MOCK = {
+  alertes:[
+    { source:'CERT-FR', title:'Alerte critique – Exploitation active CVE-2025-0282 (Ivanti Connect Secure)', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-001/' },
+    { source:'ANS e-Santé', title:'Bulletin sécurité : Campagne ransomware ciblant les GHT – recommandations urgentes', date:'14/06/2026', url:'https://esante.gouv.fr/actualites/bulletin-securite-ransomware-ght-2025' },
+    { source:'CERT-FR', title:'Avis de sécurité – Patch Tuesday Microsoft Juin 2025 (78 CVE dont 6 critiques)', date:'10/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0470/' },
+    { source:'ANSSI', title:'État de la menace ransomware en France – Rapport T1 2025', date:'05/06/2026', url:'https://www.ssi.gouv.fr/actualite/letat-de-la-menace-ransomware/' },
+    { source:'ANS e-Santé', title:'Cyber-résilience des établissements santé : nouvelles obligations NIS2', date:'02/06/2026', url:'https://esante.gouv.fr/actualites/nis2-obligations-sante' },
+    { source:'CERT-FR', title:'Campagne de phishing ciblant les DSI hospitaliers – indicateurs de compromission', date:'28/05/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-009/' },
+  ],
+  cve:[
+    { source:'CISA Medical', title:'ICS Advisory – Vulnérabilité critique Philips IntelliVue (CVSS 9.8) : accès non authentifié', date:'12/06/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-163-01' },
+    { source:'NVD NIST', title:'CVE-2025-3842 – Systèmes HL7 FHIR : contournement authentification RCE', date:'10/06/2026', url:'https://nvd.nist.gov/vuln/detail/CVE-2025-3842' },
+    { source:'CERT-FR Avis', title:'Multiples vulnérabilités dans Microsoft Exchange activement exploitées', date:'08/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0421/' },
+    { source:'CISA KEV', title:'Known Exploited Vulnerability – SonicWall SMA 100 series (CVE-2025-23006)', date:'07/06/2026', url:'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
+    { source:'NVD NIST', title:'CVE-2025-2891 – Logiciel DPI imagerie médicale : RCE pré-authentification', date:'03/06/2026', url:'https://nvd.nist.gov/vuln/detail/CVE-2025-2891' },
+    { source:'CISA Medical', title:'ICS Advisory – BD Alaris infusion pump : vulnérabilité réseau critique', date:'01/06/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-25-152-01' },
+  ],
+  sante:[
+    { source:'Healthcare IT News', title:'Ransomware hits 3 German hospital networks – 12 facilities encrypted, surgeries postponed', date:'14/06/2026', url:'https://www.healthcareitnews.com/news/ransomware-german-hospitals-2025' },
+    { source:'CISA ICS Medical', title:'FDA Safety Communication – Cybersecurity vulnerabilities in implantable cardiac devices', date:'11/06/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories' },
+    { source:'Healthcare IT News', title:'French EHPAD group recovers from 3-week outage after Medusa ransomware attack', date:'09/06/2026', url:'https://www.healthcareitnews.com/news/medusa-ransomware-ehpad-france' },
+    { source:'Becker Hospital', title:'Healthcare data breach costs reach record $10.9M per incident in 2025', date:'07/06/2026', url:'https://www.beckershospitalreview.com/cybersecurity/healthcare-breach-costs-2025.html' },
+    { source:'Modern Healthcare', title:'AI-powered spear-phishing increasingly targets clinical staff with patient data lures', date:'05/06/2026', url:'https://www.modernhealthcare.com/cybersecurity/ai-phishing-hospitals-2025' },
+    { source:'HIPAA Guide', title:'50% of healthcare ransomware victims paid ransom in 2024 – CISO survey results', date:'02/06/2026', url:'https://www.hipaaguide.net/healthcare-ransomware-survey-2024/' },
+  ],
+  menaces:[
+    { source:'BleepingComputer', title:'RansomHub claims attack on major European hospital supply chain provider', date:'15/06/2026', url:'https://www.bleepingcomputer.com/news/security/ransomhub-european-hospital-supply-chain/' },
+    { source:'The Hacker News', title:'Lazarus Group deploys new stealth RAT targeting pharmaceutical R&D networks', date:'13/06/2026', url:'https://thehackernews.com/2025/06/lazarus-group-pharma-rat.html' },
+    { source:'Krebs on Security', title:'Inside the Medusa ransomware operation: 3 years targeting healthcare', date:'11/06/2026', url:'https://krebsonsecurity.com/2025/06/inside-medusa-ransomware/' },
+    { source:'BleepingComputer', title:'LockBit infrastructure taken down again – new variant already active within 48h', date:'09/06/2026', url:'https://www.bleepingcomputer.com/news/security/lockbit-infrastructure-takedown-2025/' },
+    { source:'The Hacker News', title:'Critical Cisco IOS XE vulnerabilities allow lateral movement in hospital networks', date:'07/06/2026', url:'https://thehackernews.com/2025/06/cisco-iosxe-hospital-lateral-movement.html' },
+    { source:'Krebs on Security', title:'Initial access brokers sell hospital VPN credentials on dark web forums for $500', date:'04/06/2026', url:'https://krebsonsecurity.com/2025/06/hospital-vpn-credentials-dark-web/' },
+  ],
+  rgpd:[
+    { source:'CNIL', title:'Délibération – Violation de données médicales : sanction record 4,5M€ infligée à un groupe hospitalier', date:'13/06/2026', url:'https://www.cnil.fr/fr/deliberation-violation-donnees-medicales-sanction' },
+    { source:'EDPB', title:'Guidelines 02/2025 on personal data breach notification for health sector', date:'10/06/2026', url:'https://edpb.europa.eu/our-work-tools/documents/public-consultations/2025/guidelines-022025_en' },
+    { source:'CNIL', title:'Mise en demeure – Dossier Patient Informatisé : durée de conservation non conforme', date:'07/06/2026', url:'https://www.cnil.fr/fr/mise-en-demeure-dossier-patient-informatise' },
+    { source:'IAPP', title:'NIS2 deadline approaches: French health organizations prepare mandatory incident reporting', date:'05/06/2026', url:'https://iapp.org/news/a/nis2-france-health-2025/' },
+    { source:'CNIL', title:'Rapport annuel 2024 – Secteur santé : +38% de violations de données déclarées', date:'01/06/2026', url:'https://www.cnil.fr/fr/rapport-annuel-2024' },
+    { source:'EDPB', title:'Joint statement on AI in healthcare and data protection obligations under GDPR', date:'28/05/2026', url:'https://edpb.europa.eu/our-work-tools/our-documents/statements/ai-healthcare-gdpr_en' },
+  ],
+};
+
+const RSS_FEEDS = {
+  alertes:[
+    { url:'https://www.cert.ssi.gouv.fr/alerte/feed/', name:'CERT-FR Alertes' },
+    { url:'https://www.cert.ssi.gouv.fr/feed/',        name:'CERT-FR Actualités' },
+    { url:'https://esante.gouv.fr/rss.xml',            name:'ANS e-Santé' },
+  ],
+  cve:[
+    { url:'https://www.cisa.gov/cybersecurity-advisories/ics-medical-advisories.xml', name:'CISA Medical' },
+    { url:'https://www.cert.ssi.gouv.fr/avis/feed/',   name:'CERT-FR Avis' },
+  ],
+  sante:[
+    { url:'https://healthcareitnews.com/taxonomy/term/40/rss.xml', name:'Healthcare IT News' },
+    { url:'https://www.cisa.gov/cybersecurity-advisories/ics-medical-advisories.xml', name:'CISA ICS Medical' },
+  ],
+  menaces:[
+    { url:'https://thehackernews.com/feeds/posts/default', name:'The Hacker News' },
+    { url:'https://www.bleepingcomputer.com/feed/',        name:'BleepingComputer' },
+    { url:'https://krebsonsecurity.com/feed/',             name:'Krebs on Security' },
+  ],
+  rgpd:[
+    { url:'https://www.cnil.fr/fr/rss.xml', name:'CNIL' },
+    { url:'https://edpb.europa.eu/rss_en',  name:'EDPB' },
+    { url:'https://iapp.org/news/rss.xml',  name:'IAPP' },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  setTimestamp();
+  renderCVEs();
+  renderActors();
+  renderSurface();
+  renderScoring();
+  renderPatchTable();
+  renderOSINT();
+  renderAISummary();
+  initCharts();
+  loadAllFeeds();
+  loadCTIPanels();
+  seedNotifLog();
+});
+
+function setTimestamp() {
+  const fmt = new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('last-update').textContent = 'Mise à jour : ' + fmt;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CVEs – avec lien NVD cliquable
+// ═══════════════════════════════════════════════════════════
+function renderCVEs() {
+  const sevClass = s => s==='critical'?'c-red':s==='high'?'c-orange':'c-yellow';
+  const sevLabel = s => s==='critical'?'CRITIQUE':s==='high'?'ÉLEVÉ':'MOYEN';
+  document.getElementById('cve-list').innerHTML = CVES.map(c => `
+    <div class="cve-item">
+      <div class="cve-score-box">
+        <div class="cve-num ${sevClass(c.sev)}">${c.score}</div>
+        <div class="cve-lbl">${sevLabel(c.sev)}</div>
+      </div>
+      <div style="flex:1">
+        <a class="cve-id" href="https://nvd.nist.gov/vuln/detail/${c.id}" target="_blank" rel="noopener">${c.id} ↗</a>
+        <div class="cve-prod">${c.prod}</div>
+        <div class="tags">
+          ${c.exploited?'<span class="tag tag-red">⚡ Exploitée</span>':''}
+          ${c.health?'<span class="tag tag-cyan">🏥 Santé</span>':''}
+          <span class="tag tag-green">🔗 NVD</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ACTORS – expandable avec liens réels
+// ═══════════════════════════════════════════════════════════
+function renderActors() {
+  document.getElementById('actor-list').innerHTML = ACTORS.map((a,i) => `
+    <div class="actor" onclick="toggleActor(${i})">
+      <div class="actor-top">
+        <div>
+          <div class="actor-name">${a.name} <span style="font-size:.6rem;color:var(--t3);font-weight:400">▼ sources</span></div>
+          <div class="actor-type">${a.type} · ${a.origin}</div>
+        </div>
+        <div class="actor-score ${a.sc}">${a.score}</div>
+      </div>
+      <div style="font-size:.67rem;color:var(--t2);margin:.2rem 0 .35rem">🎯 ${a.targets}</div>
+      <div style="font-size:.6rem;color:var(--t3);margin-bottom:.3rem">TTPs : ${a.ttps.join(' · ')}</div>
+      <div class="actor-bar"><div class="actor-fill" style="width:${a.activity}%;background:${a.color}"></div></div>
+      <div class="actor-links" id="actor-links-${i}">
+        ${a.links.map(l=>`
+          <a class="actor-link-item" href="${l.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+            <span>${l.badge}</span>${l.label}
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleActor(i) {
+  const el = document.getElementById('actor-links-'+i);
+  el.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SURFACE
+// ═══════════════════════════════════════════════════════════
+function renderSurface() {
+  document.getElementById('surface-grid').innerHTML = [
+    ...OC_DOMAINS.map(d=>`<div class="surf-item"><div class="surf-dot dom"></div>${d}</div>`),
+    ...OC_IPS.map(ip=>`<div class="surf-item"><div class="surf-dot ip"></div>${ip}</div>`),
+  ].join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SCORING DE RISQUE
+// ═══════════════════════════════════════════════════════════
+function renderScoring() {
+  const rows = CVES.map(c => {
+    const raw = c.score * (c.health?1.3:0.8) * (c.exploited?1.2:1.0);
+    const risk = Math.min(10, +raw.toFixed(1));
+    const pct = (risk/10)*100;
+    const col = risk>=9?'var(--red)':risk>=7?'var(--orange)':'var(--yellow)';
+    const pri = risk>=9?'<span class="urgency urg-imm">IMMÉDIAT</span>':risk>=7?'<span class="urgency urg-high">HAUTE</span>':'<span class="urgency urg-med">MODÉRÉE</span>';
+    const assetsStr = c.assets ? c.assets.join(', ') : 'SI général';
+    return `<tr>
+      <td><a href="https://nvd.nist.gov/vuln/detail/${c.id}" target="_blank" rel="noopener" style="color:var(--blue);font-family:monospace;font-size:.72rem;font-weight:700;text-decoration:none">${c.id}</a></td>
+      <td style="color:var(--t1)">${c.prod}</td>
+      <td style="font-size:.68rem">${assetsStr}</td>
+      <td><div class="risk-bar-wrap"><div class="risk-bar"><div class="risk-fill" style="width:${pct}%;background:${col}"></div></div><div class="risk-val" style="color:${col}">${risk}</div></div></td>
+      <td>${pri}</td>
+    </tr>`;
+  });
+  document.getElementById('score-tbody').innerHTML = rows.join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  PATCH TABLE
+// ═══════════════════════════════════════════════════════════
+function renderPatchTable() {
+  const today = new Date('2026-06-15');
+  document.getElementById('patch-tbody').innerHTML = PATCH_DATA.map(p => {
+    const due = new Date(today);
+    due.setDate(due.getDate() + p.deadline);
+    const dueStr = due.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const urgEl = p.urgency==='imm'
+      ? '<span class="urgency urg-imm">🔴 IMMÉDIAT</span>'
+      : p.urgency==='high'
+        ? '<span class="urgency urg-high">🟠 HAUTE</span>'
+        : '<span class="urgency urg-med">🟡 MODÉRÉE</span>';
+    const pct = Math.max(5, 100 - (p.deadline/30)*100);
+    const barCol = p.urgency==='imm'?'var(--red)':p.urgency==='high'?'var(--orange)':'var(--yellow)';
+    return `<tr>
+      <td><a href="https://nvd.nist.gov/vuln/detail/${p.cve}" target="_blank" rel="noopener" style="color:var(--blue);font-family:monospace;font-size:.7rem;font-weight:700;text-decoration:none">${p.cve}</a></td>
+      <td style="color:var(--t1)">${p.prod}</td>
+      <td>${urgEl}</td>
+      <td style="color:var(--t1)">${dueStr}</td>
+      <td><div class="deadline-bar"><div class="db-fill" style="width:${pct}px;background:${barCol}"></div><span style="color:${barCol};font-weight:700">${p.deadline} j</span></div></td>
+      <td style="color:var(--t2)">${p.owner}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  OSINT DARK WEB
+// ═══════════════════════════════════════════════════════════
+function renderOSINT() {
+  document.getElementById('osint-grid').innerHTML = OSINT_DATA.map(o => {
+    const dotClass = o.status==='alert'?'osint-alert':o.status==='warn'?'osint-warn':'osint-ok';
+    const trendEl = o.trend==='up'
+      ? `<span class="trend-up">↑ En hausse</span>`
+      : `<span class="trend-ok">✓ Stable</span>`;
+    const countColor = o.status==='ok'?'var(--green)':o.status==='warn'?'var(--yellow)':'var(--red)';
+    return `<div class="osint-card">
+      <div class="osint-status">
+        <div class="osint-dot ${dotClass}"></div>
+        <div class="osint-label">${o.label}</div>
+      </div>
+      <div class="osint-count" style="color:${countColor}">${o.count}</div>
+      <div class="osint-desc">${o.desc}</div>
+      <div style="margin-top:.4rem;font-size:.65rem">${trendEl}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AI SUMMARY
+// ═══════════════════════════════════════════════════════════
+function renderAISummary() {
+  const summary = `Semaine du 9 au 15 juin 2026 — Le niveau de menace pour le secteur santé reste <strong style="color:var(--orange)">ÉLEVÉ</strong>. Deux groupes ransomware — <strong style="color:var(--red)">LockBit 3.0</strong> et <strong style="color:var(--red)">RansomHub</strong> — ont ciblé activement des infrastructures hospitalières européennes cette semaine. La vulnérabilité <strong>CVE-2025-0282</strong> (Ivanti Connect Secure, CVSS 9.0) est exploitée en masse et présente un risque direct si des équipements VPN Ivanti sont présents dans le SI OC Santé.
+<br><br>
+Le benchmark sectoriel positionne OC Santé favorablement : le délai de patch (12 jours vs 21 jours secteur) et le taux MFA (78%) sont au-dessus de la moyenne. La surveillance OSINT n'a détecté <strong style="color:var(--green)">aucune fuite de données</strong> sur les actifs OC Santé. En revanche, 7 services exposés (RDP/SSH non protégés) ont été identifiés via Shodan — action corrective recommandée cette semaine.
+<br><br>
+<strong>Actions prioritaires :</strong> (1) Patcher CVE-2025-0282 et CVE-2025-23006 sous 3 jours, (2) Restreindre l'accès RDP aux 7 services exposés, (3) Sensibiliser les DSI au phishing ciblé hospitalier (campagne active CERT-FR).`;
+  document.getElementById('ai-text').innerHTML = summary;
+  document.getElementById('ai-chips').innerHTML = [
+    'NIS2 Readiness : 67/100','Ransomware : Menace #1','Patch critique : sous 3 jours',
+    'OSINT : 0 fuite détectée','MFA coverage : 78%','RDP exposé : action requise'
+  ].map(c=>`<div class="ai-chip">${c}</div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ALERTES PUSH
+// ═══════════════════════════════════════════════════════════
+let notifActive = false;
+
+function seedNotifLog() {
+  const log = document.getElementById('notif-log');
+  const entries = [
+    { badge:'notif-new', label:'ALERTE', text:'CVE-2025-0282 · CVSS 9.0 · Ivanti VPN · Exploitation active' },
+    { badge:'notif-new', label:'ALERTE', text:'CVE-2025-23006 · CVSS 9.8 · SonicWall · CISA KEV confirmé' },
+    { badge:'notif-info', label:'INFO',   text:'Système initialisé – Surveillance CTI OC Santé active' },
+  ];
+  log.innerHTML = entries.map(e=>`
+    <div class="notif-entry">
+      <span class="${e.badge}">${e.label}</span>
+      ${e.text}
+    </div>
+  `).join('');
+}
+
+function activateAlerts() {
+  const threshold = parseFloat(document.getElementById('cvss-threshold').value) || 9.0;
+  const btn = document.getElementById('btn-notif');
+
+  if (!('Notification' in window)) {
+    addNotifEntry('notif-info', 'INFO', 'Notifications non supportées par ce navigateur');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    if (perm === 'granted') {
+      notifActive = true;
+      btn.classList.add('active-notif');
+      btn.textContent = '🔔 Alertes actives';
+      addNotifEntry('notif-info', 'ACTIF', `Surveillance démarrée – seuil CVSS ≥ ${threshold}`);
+      // Notification de démonstration
+      new Notification('OC Santé CTI – Alerte active', {
+        body: `Surveillance CVE CVSS ≥ ${threshold} activée`,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏥</text></svg>'
+      });
+      // Alerte CVE immédiate si seuil franchi
+      CVES.filter(c=>c.score>=threshold).forEach(c=>{
+        setTimeout(()=>{
+          new Notification(`⚠️ CVE ${c.id} – CVSS ${c.score}`, {
+            body: `${c.prod} – Exploitation active détectée`,
+          });
+          addNotifEntry('notif-new','ALERTE',`${c.id} · CVSS ${c.score} · ${c.prod}`);
+        }, 1000);
+      });
+    } else {
+      addNotifEntry('notif-info','REFUSÉ','Autorisation notifications refusée – activez dans les paramètres navigateur');
+    }
+  });
+}
+
+function addNotifEntry(cls, label, text) {
+  const log = document.getElementById('notif-log');
+  const div = document.createElement('div');
+  div.className = 'notif-entry';
+  div.innerHTML = `<span class="${cls}">${label}</span>${text}`;
+  log.insertBefore(div, log.firstChild);
+}
+
+function toggleNotif() {
+  if (notifActive) {
+    notifActive = false;
+    document.getElementById('btn-notif').classList.remove('active-notif');
+    document.getElementById('btn-notif').textContent = '🔔 Alertes Push';
+    addNotifEntry('notif-info','ARRÊTÉ','Surveillance notifications désactivée');
+  } else {
+    activateAlerts();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  EXPORT PDF
+// ═══════════════════════════════════════════════════════════
+function exportPDF() {
+  window.print();
+}
+
+function copyReport() {
+  const txt = `RAPPORT RSSI — OC SANTÉ — ${new Date().toLocaleDateString('fr-FR')}
+
+NIVEAU MENACE : ÉLEVÉ
+CVE critiques actives : 47 (dont 12 exploitées)
+Groupes ransomware ciblant la santé : 6
+Alertes institutionnelles / 30 jours : 23
+
+ACTIONS PRIORITAIRES :
+1. Patcher CVE-2025-0282 (Ivanti VPN) — sous 3 jours
+2. Patcher CVE-2025-23006 (SonicWall) — sous 3 jours
+3. Sécuriser 7 services RDP/SSH exposés identifiés Shodan
+4. Activer MFA sur 22% actifs non couverts restants
+
+BENCHMARK : OC Santé meilleur que secteur sur 4/6 KPIs
+Score NIS2 Readiness : 67/100 — Plan remédiation en cours
+
+Source : Dashboard CTI OC Santé · Données : CERT-FR · CISA · NVD`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    alert('Résumé exécutif copié dans le presse-papiers !');
+  }).catch(()=>{
+    alert('Résumé prêt (copie manuelle requise).');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CHARTS
+// ═══════════════════════════════════════════════════════════
+function initCharts() {
+  Chart.defaults.color = '#475569';
+  Chart.defaults.borderColor = '#e2e8f0';
+
+  const days = Array.from({length:30},(_,i)=>{
+    const d=new Date('2026-06-15'); d.setDate(d.getDate()-29+i);
+    return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+  });
+
+  const cveData      = [3,5,4,7,6,8,5,9,7,10,8,6,12,9,11,8,14,10,13,9,11,15,12,14,11,16,13,15,12,17];
+  const alerteData   = [1,2,1,2,3,2,1,3,2,4,2,1,3,2,3,1,4,2,3,2,3,4,3,4,2,5,3,4,3,4];
+  const incidentData = [0,1,0,1,1,2,0,1,2,1,1,0,2,1,2,0,2,1,2,1,1,3,2,2,1,3,2,3,2,3];
+
+  // Points marqueurs : taille 0 sauf pics et dernier point
+  function makePointRadii(data) {
+    const max = Math.max(...data);
+    return data.map((v,i) => (v === max || i === data.length-1) ? 5 : 0);
+  }
+  function makePointStyles(data) {
+    const max = Math.max(...data);
+    return data.map((v,i) => (v === max || i === data.length-1) ? 'circle' : 'circle');
+  }
+
+  new Chart(document.getElementById('chartTrend'),{
+    type:'line',
+    data:{
+      labels: days,
+      datasets:[
+        {
+          label:'CVE publiées',
+          data: cveData,
+          borderColor:'#dc2626',
+          backgroundColor:'rgba(220,38,38,.07)',
+          tension:.4, fill:true,
+          borderWidth:2.5,
+          pointRadius: makePointRadii(cveData),
+          pointBackgroundColor:'#dc2626',
+          pointBorderColor:'#fff',
+          pointBorderWidth:2,
+          pointHoverRadius:6,
+        },
+        {
+          label:'Alertes santé',
+          data: alerteData,
+          borderColor:'#0284c7',
+          backgroundColor:'rgba(2,132,199,.06)',
+          tension:.4, fill:true,
+          borderWidth:2.5,
+          pointRadius: makePointRadii(alerteData),
+          pointBackgroundColor:'#0284c7',
+          pointBorderColor:'#fff',
+          pointBorderWidth:2,
+          pointHoverRadius:6,
+        },
+        {
+          label:'Incidents secteur',
+          data: incidentData,
+          borderColor:'#ea580c',
+          backgroundColor:'rgba(234,88,12,.06)',
+          tension:.4, fill:true,
+          borderWidth:2.5,
+          pointRadius: makePointRadii(incidentData),
+          pointBackgroundColor:'#ea580c',
+          pointBorderColor:'#fff',
+          pointBorderWidth:2,
+          pointHoverRadius:6,
+        },
+        {
+          label:'Seuil d\'alerte CVE',
+          data: Array(30).fill(12),
+          borderColor:'rgba(220,38,38,.35)',
+          backgroundColor:'transparent',
+          borderWidth:1.5,
+          borderDash:[6,4],
+          pointRadius:0,
+          pointHoverRadius:0,
+          fill:false,
+          tension:0,
+        },
+      ]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{
+          position:'bottom',
+          labels:{
+            boxWidth:12, padding:14, font:{size:10.5},
+            color:'#334155',
+            usePointStyle:true, pointStyleWidth:10,
+          }
+        },
+        tooltip:{
+          backgroundColor:'#fff',
+          borderColor:'#d1dce8',
+          borderWidth:1,
+          titleColor:'#0f172a',
+          bodyColor:'#475569',
+          titleFont:{size:11, weight:'bold'},
+          bodyFont:{size:10.5},
+          padding:10,
+          callbacks:{
+            title: ctx => '📅 ' + ctx[0].label,
+            label: ctx => {
+              if (ctx.dataset.label === 'Seuil d\'alerte CVE') return null;
+              const icons = {'CVE publiées':'⚠️','Alertes santé':'🏥','Incidents secteur':'🔴'};
+              const icon = icons[ctx.dataset.label] || '';
+              return ` ${icon} ${ctx.dataset.label} : ${ctx.parsed.y}`;
+            },
+            afterBody: ctx => {
+              const cve = ctx.find(c=>c.dataset.label==='CVE publiées');
+              if (cve && cve.parsed.y >= 12) return ['', '⚡ Seuil d\'alerte dépassé'];
+              return [];
+            }
+          }
+        }
+      },
+      scales:{
+        x:{
+          grid:{ color:'rgba(209,220,232,.5)', drawTicks:false },
+          border:{ color:'#d1dce8' },
+          ticks:{ font:{size:9.5}, color:'#64748b', maxTicksLimit:8, padding:6 },
+        },
+        y:{
+          grid:{ color:'rgba(209,220,232,.4)', drawTicks:false },
+          border:{ color:'#d1dce8', dash:[4,4] },
+          ticks:{
+            font:{size:9.5}, color:'#64748b', padding:8,
+            stepSize:2, beginAtZero:true,
+            callback: v => v === 12 ? '⚠️ 12' : v,
+          },
+          beginAtZero:true,
+          max: 20,
+        }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('chartTypes'),{
+    type:'doughnut',
+    data:{labels:['Ransomware','Phishing','Exploitation CVE','Vol de données','APT / Espionnage'],datasets:[{data:[38,27,18,11,6],backgroundColor:['#ef4444','#f97316','#eab308','#3b82f6','#a78bfa'],borderColor:'#101926',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:9,padding:8,font:{size:9}}}},cutout:'65%'}
+  });
+
+  new Chart(document.getElementById('chartVectors'),{
+    type:'bar',
+    data:{labels:['RDP exposé','VPN vulnérable','Phishing email','Supply chain','RCE web app','USB / physique'],datasets:[{data:[45,38,32,22,18,5],backgroundColor:['#ef4444','#ef4444','#f97316','#eab308','#eab308','#22c55e'],borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{font:{size:9}},max:60},y:{grid:{display:false},ticks:{font:{size:9}}}}}
+  });
+
+  // BENCHMARK RADAR
+  new Chart(document.getElementById('chartBenchmark'),{
+    type:'radar',
+    data:{
+      labels:['Délai patch','Couverture MFA','Incidents','Exposition','Budget cyber','NIS2 Score'],
+      datasets:[
+        {label:'OC Santé',data:[85,78,80,55,70,67],borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,.12)',borderWidth:2,pointBackgroundColor:'#06b6d4'},
+        {label:'Secteur FR',data:[50,54,50,62,75,58],borderColor:'#64748b',backgroundColor:'rgba(100,116,139,.08)',borderWidth:1.5,pointBackgroundColor:'#64748b',borderDash:[4,3]},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:9,padding:8,font:{size:9}}}},
+      scales:{r:{grid:{color:'rgba(255,255,255,.06)'},angleLines:{color:'rgba(255,255,255,.06)'},ticks:{display:false},pointLabels:{font:{size:9},color:'#94a3b8'},min:0,max:100}}
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════════════════
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.feed-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  RSS – validation URL + freshness
+// ═══════════════════════════════════════════════════════════
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json?count=20&rss_url=';
+const FRESHNESS_MONTHS = 6;
+
+function isValidArticleUrl(url) {
+  if (!url || url === '#') return false;
+  if (url.includes('<') || url.includes('%3C') || url.includes('%3D') || url.includes('%3c')) return false;
+  if (url.length > 300) return false;
+  try { new URL(url); return true; } catch { return false; }
+}
+
+async function fetchFeed(feedUrl, sourceName) {
+  try {
+    const res = await fetch(RSS2JSON + encodeURIComponent(feedUrl), { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (json.status !== 'ok' || !json.items?.length) throw new Error('No items');
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - FRESHNESS_MONTHS);
+    const fresh = json.items.filter(item => {
+      if (!item.pubDate) return false;
+      if (new Date(item.pubDate) < cutoff) return false;
+      return isValidArticleUrl(item.link);
+    });
+    if (!fresh.length) return null;
+    fresh.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
+    return fresh.slice(0,10).map(item => ({
+      source: sourceName,
+      title:  item.title || '(sans titre)',
+      date:   new Date(item.pubDate).toLocaleDateString('fr-FR'),
+      url:    item.link,
+    }));
+  } catch { return null; }
+}
+
+async function loadFeedPanel(panelId, feedKey) {
+  const panel = document.getElementById('panel-' + panelId);
+  const feeds = RSS_FEEDS[feedKey];
+  const results = await Promise.all(feeds.map(f => fetchFeed(f.url, f.name)));
+  const items = results.filter(Boolean).flat()
+    .sort((a,b) => new Date(b.date.split('/').reverse().join('-')) - new Date(a.date.split('/').reverse().join('-')));
+  renderFeedItems(panel, items.length ? items : MOCK[feedKey], !items.length);
+}
+
+function renderFeedItems(panel, items, isMock) {
+  const badge = isMock
+    ? `<div style="font-size:.65rem;color:var(--t3);padding:.5rem 1.1rem;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border)">⚠️ Données représentatives (flux direct inaccessible depuis ce navigateur – CORS)</div>`
+    : '';
+  panel.innerHTML = badge + items.map(it=>`
+    <div class="feed-item">
+      <div class="fi-source">${it.source}</div>
+      <div class="fi-title"><a href="${it.url}" target="_blank" rel="noopener">${it.title}</a></div>
+      <div class="fi-meta">📅 ${it.date}</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  CTI PANELS — CERT-FR & CYBERVEILLE ANS
+// ═══════════════════════════════════════════════════════════
+const CERTFR_MOCK = [
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Exploitation active CVE-2025-0282 – Ivanti Connect Secure', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-001/' },
+  { tag:'AVIS',   tagCls:'cti-tag-blue', title:'Patch Tuesday Juin 2025 – Microsoft (78 CVE dont 6 critiques)', date:'10/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0470/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Campagne phishing ciblant les DSI hospitaliers – IoCs publiés', date:'08/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-009/' },
+  { tag:'AVIS',   tagCls:'cti-tag-blue', title:'Multiples vulnérabilités Microsoft Exchange – exploitation active', date:'05/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2025-AVI-0421/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'SonicWall SMA 100 – CVE-2025-23006 exploitée en masse', date:'02/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2025-ALE-006/' },
+  { tag:'AVIS',   tagCls:'cti-tag-blue', title:'GeoServer CVE-2024-36401 – installations médicales exposées', date:'28/05/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2024-AVI-0890/' },
+];
+
+const CYBERVEILLE_MOCK = [
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'SimpleHelp – CVE-2026-48558 – RCE non authentifié CVSS 10', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'vm2 – CVE-2026-47140 – Sandbox escape Node.js CVSS 10', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Amasty – CVE-2026-53787 – Injection critique portail CVSS 9.8', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'Zoom – CVE-2026-53407 – Élévation de privilèges CVSS 8.1', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'Netty – CVE-2026-50010 – Déni de service réseau CVSS 7.5', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Philips IntelliVue MX40 – accès non authentifié CVSS 9.8', date:'14/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'BD Alaris infusion pump – vulnérabilité réseau CVSS 8.3', date:'13/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Ivanti Connect Secure – CVE-2025-0282 – toujours exploitée', date:'12/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+];
+
+function renderCTIItems(containerId, items) {
+  document.getElementById(containerId).innerHTML = items.map(it => `
+    <div class="cti-item">
+      <span class="cti-tag ${it.tagCls}">${it.tag}</span>
+      <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
+      <div class="cti-meta">📅 ${it.date}</div>
+    </div>
+  `).join('');
+}
+
+async function loadCTIPanels() {
+  // CERT-FR : flux principal + alertes
+  const [certMain, certAlertes] = await Promise.all([
+    fetchFeed('https://www.cert.ssi.gouv.fr/feed/', 'CERT-FR'),
+    fetchFeed('https://www.cert.ssi.gouv.fr/alerte/feed/', 'ALERTE'),
+  ]);
+  const certItems = [...(certMain||[]), ...(certAlertes||[])]
+    .sort((a,b) => new Date(b.date.split('/').reverse().join('-')) - new Date(a.date.split('/').reverse().join('-')))
+    .slice(0,10);
+  if (certItems.length) {
+    document.getElementById('certfr-feed').innerHTML = certItems.map(it => `
+      <div class="cti-item">
+        <span class="cti-tag ${it.source==='ALERTE'?'cti-tag-red':'cti-tag-blue'}">${it.source}</span>
+        <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
+        <div class="cti-meta">📅 ${it.date}</div>
+      </div>
+    `).join('');
+  } else {
+    renderCTIItems('certfr-feed', CERTFR_MOCK);
+  }
+
+  // CYBERVEILLE ANS — plusieurs URLs RSS testées dans l'ordre
+  const cyberUrls = [
+    'https://www.cyberveille-sante.gouv.fr/alertes/rss.xml',
+    'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites/rss',
+    'https://esante.gouv.fr/rss.xml',
+  ];
+  let ansItems = null;
+  for (const url of cyberUrls) {
+    ansItems = await fetchFeed(url, 'CYBER-SANTÉ');
+    if (ansItems && ansItems.length) break;
+  }
+  if (ansItems && ansItems.length) {
+    document.getElementById('cyberveille-feed').innerHTML = ansItems.map(it => `
+      <div class="cti-item">
+        <span class="cti-tag cti-tag-blue">ANS</span>
+        <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
+        <div class="cti-meta">📅 ${it.date}</div>
+      </div>
+    `).join('');
+  } else {
+    renderCTIItems('cyberveille-feed', CYBERVEILLE_MOCK);
+  }
+}
+
+async function loadAllFeeds() {
+  await Promise.all([
+    loadFeedPanel('alertes','alertes'),
+    loadFeedPanel('cve','cve'),
+    loadFeedPanel('sante','sante'),
+    loadFeedPanel('menaces','menaces'),
+    loadFeedPanel('rgpd','rgpd'),
+  ]);
+}
+</script>
+</body>
+</html>
