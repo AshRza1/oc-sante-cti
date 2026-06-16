@@ -341,8 +341,9 @@
     <div class="hdr-right">
       <div class="threat-chip chip-high"><div class="dot-pulse"></div><span>Menace : ÉLEVÉE</span></div>
       <button class="hdr-btn no-print" id="btn-notif" onclick="toggleNotif()">Alertes Push</button>
+      <button class="hdr-btn no-print" id="btn-refresh" onclick="refreshAllFeeds()">Actualiser les flux</button>
       <button class="hdr-btn no-print" onclick="exportPDF()">Export PDF</button>
-      <div class="upd" id="last-update">Mise à jour : chargement…</div>
+      <div class="upd" id="last-update">Mise à jour : chargement… <span style="opacity:.7">· auto-actualisation 5 min</span></div>
     </div>
   </div>
 </header>
@@ -734,7 +735,7 @@
 <div class="card">
   <div class="card-hdr">
     <h3>Monitoring exposition OC Santé</h3>
-    <span style="font-size:.65rem;color:var(--t3)">Scan : pastes, forums, Telegram, leak sites</span>
+    <span style="font-size:.65rem;color:var(--t3)">Calculé en temps réel à partir des flux CTI surveillés (approximation par mots-clés)</span>
   </div>
   <div class="osint-grid" id="osint-grid"></div>
 </div>
@@ -746,7 +747,7 @@
 <div class="card">
   <div class="card-hdr">
     <h3>OC Santé vs Secteur Santé France</h3>
-    <span style="font-size:.65rem;color:var(--t3)">Source : CNIL · ANSSI · Données sectorielles 2026</span>
+    <span style="font-size:.65rem;color:var(--t3)">Radar : ajusté en temps réel selon le volume d'alertes des flux CTI (approximation) · Tableau : illustratif</span>
   </div>
   <div class="benchmark-grid">
     <div><div class="bench-chart-wrap"><canvas id="chartBenchmark"></canvas></div></div>
@@ -1067,17 +1068,96 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSurface();
   renderScoring();
   renderPatchTable();
-  renderOSINT();
   renderAISummary();
-  initCharts();
-  loadAllFeeds();
-  loadCTIPanels();
   seedNotifLog();
+  // Premier rendu avec une analyse vide (graphiques à 0 / OSINT par défaut)
+  // pour que la page ne soit jamais bloquée en attendant le réseau.
+  initCharts(analyzeThreatActivity([]));
+  renderOSINT();
+  loadFeedsAndAnalyze();
+  startAutoRefresh();
 });
+
+// Charge tous les flux (RSS + CTI panels) puis recalcule les visuels
+// dynamiques une fois que TOUT est arrivé (ou a échoué en mock).
+async function loadFeedsAndAnalyze() {
+  lastCollectedItems = [];
+  await Promise.all([loadAllFeeds(), loadCTIPanels()]);
+  refreshDynamicVisuals();
+}
 
 function setTimestamp() {
   const fmt = new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  document.getElementById('last-update').textContent = 'Mise à jour : ' + fmt;
+  document.getElementById('last-update').innerHTML = 'Mise à jour : ' + fmt + ' <span style="opacity:.7">· auto-actualisation 5 min</span>';
+}
+
+// ═══════════════════════════════════════════════════════════
+//  AUTO-REFRESH — vérifie les flux toutes les 5 minutes
+// ═══════════════════════════════════════════════════════════
+const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+let autoRefreshTimer = null;
+
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  autoRefreshTimer = setInterval(() => {
+    // On ne tape pas les proxies si l'onglet n'est pas visible : ça évite
+    // de consommer le quota gratuit pour rien quand personne ne regarde.
+    if (document.visibilityState === 'visible') {
+      silentRefreshFeeds();
+    }
+  }, AUTO_REFRESH_MS);
+
+  // Si l'onglet redevient visible après avoir été masqué longtemps,
+  // on vérifie immédiatement plutôt que d'attendre le prochain tick.
+  let hiddenSince = null;
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      hiddenSince = Date.now();
+    } else if (hiddenSince && Date.now() - hiddenSince > AUTO_REFRESH_MS) {
+      silentRefreshFeeds();
+      hiddenSince = null;
+    }
+  });
+}
+
+// Rafraîchissement automatique discret : invalide le cache, recharge les
+// flux en arrière-plan, et signale s'il y a de nouveaux items détectés
+// (sans bloquer l'UI ni afficher de spinner intrusif).
+async function silentRefreshFeeds() {
+  Object.keys(sessionStorage)
+    .filter(k => k.startsWith('feedcache:'))
+    .forEach(k => sessionStorage.removeItem(k));
+
+  const previousUrls = new Set(
+    Array.from(document.querySelectorAll('.feed-item .fi-title a, .cti-item .cti-title'))
+      .map(a => a.getAttribute('href'))
+  );
+
+  try {
+    lastCollectedItems = [];
+    await Promise.all([loadAllFeeds(), loadCTIPanels()]);
+    refreshDynamicVisuals();
+    setTimestamp();
+
+    const newUrls = Array.from(document.querySelectorAll('.feed-item .fi-title a, .cti-item .cti-title'))
+      .map(a => a.getAttribute('href'));
+    const hasNew = newUrls.some(u => u && !previousUrls.has(u));
+    if (hasNew) {
+      flashUpdateIndicator();
+      addNotifEntry('notif-new', 'MAJ', 'Nouveaux éléments détectés dans les flux CTI');
+    }
+  } catch (e) {
+    console.warn('[Auto-refresh] échec :', e.message);
+  }
+}
+
+function flashUpdateIndicator() {
+  const el = document.getElementById('last-update');
+  if (!el) return;
+  const original = el.style.color;
+  el.style.color = 'var(--green)';
+  el.style.fontWeight = '700';
+  setTimeout(() => { el.style.color = original; el.style.fontWeight = ''; }, 4000);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1201,8 +1281,9 @@ function renderPatchTable() {
 // ═══════════════════════════════════════════════════════════
 //  OSINT DARK WEB
 // ═══════════════════════════════════════════════════════════
-function renderOSINT() {
-  document.getElementById('osint-grid').innerHTML = OSINT_DATA.map(o => {
+function renderOSINT(osintData) {
+  const data = osintData || OSINT_DATA;
+  document.getElementById('osint-grid').innerHTML = data.map(o => {
     const dotClass = o.status==='alert'?'osint-alert':o.status==='warn'?'osint-warn':'osint-ok';
     const trendEl = o.trend==='up'
       ? `<span class="trend-up">En hausse</span>`
@@ -1343,30 +1424,33 @@ Source : Dashboard CTI OC Santé · Données : CERT-FR · CISA · NVD`;
 // ═══════════════════════════════════════════════════════════
 //  CHARTS
 // ═══════════════════════════════════════════════════════════
-function initCharts() {
+// Instances Chart.js conservées pour pouvoir les détruire/recréer
+// lors d'un rafraîchissement (sinon Chart.js empile les canvas).
+let chartInstances = {};
+
+function destroyCharts() {
+  Object.values(chartInstances).forEach(c => c?.destroy());
+  chartInstances = {};
+}
+
+function initCharts(analysis) {
   Chart.defaults.color = '#475569';
   Chart.defaults.borderColor = '#e2e8f0';
+  destroyCharts();
 
-  const days = Array.from({length:30},(_,i)=>{
-    const d=new Date('2026-06-15'); d.setDate(d.getDate()-29+i);
-    return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
-  });
-
-  const cveData      = [3,5,4,7,6,8,5,9,7,10,8,6,12,9,11,8,14,10,13,9,11,15,12,14,11,16,13,15,12,17];
-  const alerteData   = [1,2,1,2,3,2,1,3,2,4,2,1,3,2,3,1,4,2,3,2,3,4,3,4,2,5,3,4,3,4];
-  const incidentData = [0,1,0,1,1,2,0,1,2,1,1,0,2,1,2,0,2,1,2,1,1,3,2,2,1,3,2,3,2,3];
+  const days = analysis.days;
+  const cveData      = analysis.cveTrend;
+  const alerteData    = analysis.alertTrend;
+  const incidentData  = analysis.incidentTrend;
+  const alertThreshold = analysis.alertThreshold;
 
   // Points marqueurs : taille 0 sauf pics et dernier point
   function makePointRadii(data) {
     const max = Math.max(...data);
     return data.map((v,i) => (v === max || i === data.length-1) ? 5 : 0);
   }
-  function makePointStyles(data) {
-    const max = Math.max(...data);
-    return data.map((v,i) => (v === max || i === data.length-1) ? 'circle' : 'circle');
-  }
 
-  new Chart(document.getElementById('chartTrend'),{
+  chartInstances.trend = new Chart(document.getElementById('chartTrend'),{
     type:'line',
     data:{
       labels: days,
@@ -1412,7 +1496,7 @@ function initCharts() {
         },
         {
           label:'Seuil d\'alerte CVE',
-          data: Array(30).fill(12),
+          data: Array(days.length).fill(alertThreshold),
           borderColor:'rgba(220,38,38,.35)',
           backgroundColor:'transparent',
           borderWidth:1.5,
@@ -1454,7 +1538,7 @@ function initCharts() {
             },
             afterBody: ctx => {
               const cve = ctx.find(c=>c.dataset.label==='CVE publiées');
-              if (cve && cve.parsed.y >= 12) return ['', 'Seuil d\'alerte dépassé'];
+              if (cve && cve.parsed.y >= alertThreshold) return ['', 'Seuil d\'alerte dépassé'];
               return [];
             }
           }
@@ -1475,32 +1559,32 @@ function initCharts() {
             callback: v => v,
           },
           beginAtZero:true,
-          max: 20,
+          max: analysis.trendYMax,
         }
       }
     }
   });
 
-  new Chart(document.getElementById('chartTypes'),{
+  chartInstances.types = new Chart(document.getElementById('chartTypes'),{
     type:'doughnut',
-    data:{labels:['Ransomware','Phishing','Exploitation CVE','Vol de données','APT / Espionnage'],datasets:[{data:[38,27,18,11,6],backgroundColor:['#ef4444','#f97316','#eab308','#3b82f6','#a78bfa'],borderColor:'#101926',borderWidth:2}]},
+    data:{labels:analysis.typeLabels,datasets:[{data:analysis.typeData,backgroundColor:['#ef4444','#f97316','#eab308','#3b82f6','#a78bfa'],borderColor:'#101926',borderWidth:2}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:9,padding:8,font:{size:9}}}},cutout:'65%'}
   });
 
-  new Chart(document.getElementById('chartVectors'),{
+  chartInstances.vectors = new Chart(document.getElementById('chartVectors'),{
     type:'bar',
-    data:{labels:['RDP exposé','VPN vulnérable','Phishing email','Supply chain','RCE web app','USB / physique'],datasets:[{data:[45,38,32,22,18,5],backgroundColor:['#ef4444','#ef4444','#f97316','#eab308','#eab308','#22c55e'],borderRadius:4,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{font:{size:9}},max:60},y:{grid:{display:false},ticks:{font:{size:9}}}}}
+    data:{labels:analysis.vectorLabels,datasets:[{data:analysis.vectorData,backgroundColor:['#ef4444','#ef4444','#f97316','#eab308','#eab308','#22c55e'],borderRadius:4,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{font:{size:9}},max:analysis.vectorYMax},y:{grid:{display:false},ticks:{font:{size:9}}}}}
   });
 
   // BENCHMARK RADAR
-  new Chart(document.getElementById('chartBenchmark'),{
+  chartInstances.benchmark = new Chart(document.getElementById('chartBenchmark'),{
     type:'radar',
     data:{
       labels:['Délai patch','Couverture MFA','Incidents','Exposition','Budget cyber','NIS2 Score'],
       datasets:[
-        {label:'OC Santé',data:[85,78,80,55,70,67],borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,.12)',borderWidth:2,pointBackgroundColor:'#06b6d4'},
-        {label:'Secteur FR',data:[50,54,50,62,75,58],borderColor:'#64748b',backgroundColor:'rgba(100,116,139,.08)',borderWidth:1.5,pointBackgroundColor:'#64748b',borderDash:[4,3]},
+        {label:'OC Santé',data:analysis.benchmarkOC,borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,.12)',borderWidth:2,pointBackgroundColor:'#06b6d4'},
+        {label:'Secteur FR',data:analysis.benchmarkSector,borderColor:'#64748b',backgroundColor:'rgba(100,116,139,.08)',borderWidth:1.5,pointBackgroundColor:'#64748b',borderDash:[4,3]},
       ]
     },
     options:{
@@ -1522,10 +1606,54 @@ function switchTab(id, btn) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  RSS – validation URL + freshness
+//  RSS – multi-proxy avec fallback en cascade + validation
 // ═══════════════════════════════════════════════════════════
-const RSS2JSON = 'https://api.rss2json.com/v1/api.json?count=20&rss_url=';
 const FRESHNESS_MONTHS = 6;
+
+// Plusieurs proxies CORS publics testés dans l'ordre. Si l'un échoue
+// (quota dépassé, down, timeout), on essaie le suivant automatiquement.
+const RSS_PROXIES = [
+  // rss2json : retourne du JSON déjà parsé (le plus simple si dispo)
+  {
+    name: 'rss2json',
+    build: feedUrl => 'https://api.rss2json.com/v1/api.json?count=20&rss_url=' + encodeURIComponent(feedUrl),
+    parse: async res => {
+      const json = await res.json();
+      if (json.status !== 'ok' || !json.items?.length) throw new Error('rss2json: no items');
+      return json.items.map(it => ({ title: it.title, link: it.link, pubDate: it.pubDate }));
+    }
+  },
+  // corsproxy.io : relaie le flux XML brut, on parse nous-mêmes
+  {
+    name: 'corsproxy.io',
+    build: feedUrl => 'https://corsproxy.io/?url=' + encodeURIComponent(feedUrl),
+    parse: async res => parseRssXml(await res.text())
+  },
+  // allorigins : autre relai XML brut, en dernier recours
+  {
+    name: 'allorigins',
+    build: feedUrl => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(feedUrl),
+    parse: async res => parseRssXml(await res.text())
+  },
+];
+
+function parseRssXml(xmlText) {
+  const doc = new DOMParser().parseFromString(xmlText, 'text/xml');
+  if (doc.querySelector('parsererror')) throw new Error('XML invalide');
+  const isAtom = doc.querySelector('feed') !== null;
+  const nodes = isAtom ? doc.querySelectorAll('entry') : doc.querySelectorAll('item');
+  if (!nodes.length) throw new Error('Aucun item');
+  return Array.from(nodes).map(node => {
+    const get = tag => node.querySelector(tag)?.textContent?.trim() || '';
+    let link = get('link');
+    if (isAtom) {
+      const linkEl = node.querySelector('link');
+      link = linkEl?.getAttribute('href') || link;
+    }
+    const pubDate = get('pubDate') || get('published') || get('updated') || get('dc\\:date');
+    return { title: get('title'), link, pubDate };
+  });
+}
 
 function isValidArticleUrl(url) {
   if (!url || url === '#') return false;
@@ -1534,28 +1662,71 @@ function isValidArticleUrl(url) {
   try { new URL(url); return true; } catch { return false; }
 }
 
-async function fetchFeed(feedUrl, sourceName) {
+// Cache court (sessionStorage) pour éviter de re-frapper les proxies
+// à chaque rechargement de page pendant la même session navigateur.
+const FEED_CACHE_MS = 10 * 60 * 1000; // 10 minutes
+
+function getCachedFeed(feedUrl) {
   try {
-    const res = await fetch(RSS2JSON + encodeURIComponent(feedUrl), { signal: AbortSignal.timeout(6000) });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const json = await res.json();
-    if (json.status !== 'ok' || !json.items?.length) throw new Error('No items');
-    const cutoff = new Date();
-    cutoff.setMonth(cutoff.getMonth() - FRESHNESS_MONTHS);
-    const fresh = json.items.filter(item => {
-      if (!item.pubDate) return false;
-      if (new Date(item.pubDate) < cutoff) return false;
-      return isValidArticleUrl(item.link);
-    });
-    if (!fresh.length) return null;
-    fresh.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
-    return fresh.slice(0,10).map(item => ({
-      source: sourceName,
-      title:  item.title || '(sans titre)',
-      date:   new Date(item.pubDate).toLocaleDateString('fr-FR'),
-      url:    item.link,
-    }));
+    const raw = sessionStorage.getItem('feedcache:' + feedUrl);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (Date.now() - ts > FEED_CACHE_MS) return null;
+    return data;
   } catch { return null; }
+}
+function setCachedFeed(feedUrl, data) {
+  try { sessionStorage.setItem('feedcache:' + feedUrl, JSON.stringify({ ts: Date.now(), data })); } catch {}
+}
+
+async function fetchWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchFeed(feedUrl, sourceName) {
+  const cached = getCachedFeed(feedUrl);
+  if (cached) return hydrateFeedItems(cached, sourceName);
+
+  for (const proxy of RSS_PROXIES) {
+    try {
+      const res = await fetchWithTimeout(proxy.build(feedUrl), 8000);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rawItems = await proxy.parse(res);
+      if (!rawItems?.length) throw new Error('vide');
+      setCachedFeed(feedUrl, rawItems);
+      return hydrateFeedItems(rawItems, sourceName);
+    } catch (e) {
+      console.warn(`[RSS] ${proxy.name} a échoué pour ${feedUrl}:`, e.message);
+      continue; // proxy suivant
+    }
+  }
+  console.warn(`[RSS] tous les proxies ont échoué pour ${feedUrl}`);
+  return null;
+}
+
+function hydrateFeedItems(rawItems, sourceName) {
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - FRESHNESS_MONTHS);
+  const fresh = rawItems.filter(item => {
+    if (!item.pubDate) return false;
+    const d = new Date(item.pubDate);
+    if (isNaN(d) || d < cutoff) return false;
+    return isValidArticleUrl(item.link);
+  });
+  if (!fresh.length) return null;
+  fresh.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate));
+  return fresh.slice(0,10).map(item => ({
+    source: sourceName,
+    title:  item.title || '(sans titre)',
+    date:   new Date(item.pubDate).toLocaleDateString('fr-FR'),
+    url:    item.link,
+  }));
 }
 
 async function loadFeedPanel(panelId, feedKey) {
@@ -1564,12 +1735,13 @@ async function loadFeedPanel(panelId, feedKey) {
   const results = await Promise.all(feeds.map(f => fetchFeed(f.url, f.name)));
   const items = results.filter(Boolean).flat()
     .sort((a,b) => new Date(b.date.split('/').reverse().join('-')) - new Date(a.date.split('/').reverse().join('-')));
+  if (items.length) items.forEach(collectItem);
   renderFeedItems(panel, items.length ? items : MOCK[feedKey], !items.length);
 }
 
 function renderFeedItems(panel, items, isMock) {
   const badge = isMock
-    ? `<div style="font-size:.65rem;color:var(--t3);padding:.5rem 1.1rem;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border)">Données représentatives (flux direct inaccessible depuis ce navigateur – CORS)</div>`
+    ? `<div style="font-size:.65rem;color:var(--t3);padding:.5rem 1.1rem;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border)">⚠️ Données représentatives — les 3 proxies RSS ont échoué (quota dépassé ou flux indisponible). Réessayez dans quelques minutes.</div>`
     : '';
   panel.innerHTML = badge + items.map(it=>`
     <div class="feed-item">
@@ -1630,6 +1802,7 @@ async function loadCTIPanels() {
   const sortByDate = arr => arr.sort((a,b) => new Date(b.date.split('/').reverse().join('-')) - new Date(a.date.split('/').reverse().join('-')));
   const certItems = certFeedDefs.flatMap((f,i) => sortByDate(certResults[i]||[]).slice(0,4).map(it => ({...it, tagCls:f.tagCls})));
   if (certItems.length) {
+    certItems.forEach(collectItem);
     document.getElementById('certfr-feed').innerHTML = certItems.map(it => `
       <div class="cti-item">
         <span class="cti-tag ${it.tagCls}">${it.source}</span>
@@ -1653,6 +1826,7 @@ async function loadCTIPanels() {
     if (ansItems && ansItems.length) break;
   }
   if (ansItems && ansItems.length) {
+    ansItems.forEach(collectItem);
     document.getElementById('cyberveille-feed').innerHTML = ansItems.map(it => `
       <div class="cti-item">
         <span class="cti-tag cti-tag-blue">ANS</span>
@@ -1665,6 +1839,150 @@ async function loadCTIPanels() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+//  ANALYSE DYNAMIQUE — calcule tendances/types/vecteurs/OSINT/
+//  benchmark à partir des vrais items récupérés des flux RSS.
+//  Approximation par mots-clés, PAS une vraie classification CTI.
+// ═══════════════════════════════════════════════════════════
+
+// Stocke tous les items bruts récupérés pendant le cycle de chargement
+// en cours, pour que l'analyse porte sur tout ce qui a été chargé.
+let lastCollectedItems = [];
+
+function collectItem(it) {
+  // it: {source, title, date /* dd/mm/yyyy */, url}
+  lastCollectedItems.push(it);
+}
+
+function parseFrDate(d) {
+  const [day,month,year] = d.split('/').map(Number);
+  return new Date(year, month-1, day);
+}
+
+const KEYWORD_RULES = {
+  types: [
+    { label:'Ransomware',          color:'#ef4444', kws:['ransomware','rançongiciel','lockbit','ransomhub','medusa','clop','extorsion'] },
+    { label:'Phishing',            color:'#f97316', kws:['phishing','hameçonnage','spear-phishing','ingénierie sociale'] },
+    { label:'Exploitation CVE',    color:'#eab308', kws:['cve-','vulnérabilité','vulnerabilit','exploit','rce','patch','correctif'] },
+    { label:'Vol de données',      color:'#3b82f6', kws:['fuite','breach','leak','exfiltration','données volées','data breach'] },
+    { label:'APT / Espionnage',    color:'#a78bfa', kws:['apt','lazarus','espionnage','état-nation','sandworm','étatique'] },
+  ],
+  vectors: [
+    { label:'RDP exposé',       kws:['rdp'] },
+    { label:'VPN vulnérable',   kws:['vpn','ivanti','sonicwall','fortinet'] },
+    { label:'Phishing email',   kws:['phishing','email','courriel','spear-phishing'] },
+    { label:'Supply chain',     kws:['supply chain','chaîne d\'approvisionnement','fournisseur','prestataire','moveit','cleo'] },
+    { label:'RCE web app',      kws:['rce','injection','authentification','portail web','application web'] },
+    { label:'USB / physique',   kws:['usb','physique','clé usb'] },
+  ],
+  osintLeak: ['leak','fuite','breach','exposed','exposition','data breach','pastebin','dark web','telegram'],
+};
+
+function countKeywordMatches(items, kws) {
+  const lower = items.map(it => (it.title || '').toLowerCase());
+  return lower.filter(t => kws.some(k => t.includes(k))).length;
+}
+
+function analyzeThreatActivity(items) {
+  // ── 1. Tendance sur 30 jours (volume réel d'items collectés par jour) ──
+  const NUM_DAYS = 30;
+  const today = new Date();
+  const days = [];
+  const dayKeys = [];
+  for (let i = NUM_DAYS - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    days.push(d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}));
+    dayKeys.push(d.toDateString());
+  }
+
+  const withDates = items
+    .map(it => ({ ...it, _d: parseFrDate(it.date) }))
+    .filter(it => !isNaN(it._d));
+
+  const cveTrend = dayKeys.map(key => withDates.filter(it =>
+    it._d.toDateString() === key && /cve-|vulnérabilit|exploit/i.test(it.title)
+  ).length);
+  const alertTrend = dayKeys.map(key => withDates.filter(it =>
+    it._d.toDateString() === key && /alerte|santé|hôpital|hopital|cliniqu/i.test(it.title)
+  ).length);
+  const incidentTrend = dayKeys.map(key => withDates.filter(it =>
+    it._d.toDateString() === key && /ransomware|incident|attaque|breach|fuite/i.test(it.title)
+  ).length);
+
+  // Seuil d'alerte = moyenne + 1.5x écart simple, jamais sous 5
+  const avg = arr => arr.reduce((a,b)=>a+b,0) / (arr.length || 1);
+  const cveAvg = avg(cveTrend);
+  const alertThreshold = Math.max(5, Math.round(cveAvg * 1.8));
+  const trendYMax = Math.max(10, Math.ceil((Math.max(...cveTrend, alertThreshold) + 2) / 2) * 2);
+
+  // ── 2. Types de menaces (répartition par mots-clés sur tous les items) ──
+  const typeCounts = KEYWORD_RULES.types.map(r => countKeywordMatches(items, r.kws));
+  const typeTotal = typeCounts.reduce((a,b)=>a+b,0) || 1;
+  const typeData = typeCounts.map(c => Math.round((c / typeTotal) * 100));
+  const typeLabels = KEYWORD_RULES.types.map(r => r.label);
+
+  // ── 3. Vecteurs d'attaque (mêmes items, autres mots-clés) ──
+  const vectorCounts = KEYWORD_RULES.vectors.map(r => countKeywordMatches(items, r.kws));
+  const vectorMax = Math.max(...vectorCounts, 1);
+  // On normalise sur 0-60 pour garder une échelle lisible même avec peu d'items
+  const vectorData = vectorCounts.map(c => Math.round((c / vectorMax) * 50) + (c>0?5:0));
+  const vectorLabels = KEYWORD_RULES.vectors.map(r => r.label);
+  const vectorYMax = Math.max(20, Math.ceil((Math.max(...vectorData)+10)/10)*10);
+
+  // ── 4. OSINT (approximation : mentions de fuite/exposition dans les flux) ──
+  const leakMentions = countKeywordMatches(items, KEYWORD_RULES.osintLeak);
+  const cveExploitedMentions = countKeywordMatches(items, ['exploitée','exploited','exploitation active']);
+  const supplyChainMentions = countKeywordMatches(items, KEYWORD_RULES.vectors.find(v=>v.label==='Supply chain').kws);
+  const osintData = [
+    { label:'Mentions fuite/breach — flux surveillés', status: leakMentions>3?'alert':leakMentions>0?'warn':'ok',
+      count: leakMentions, trend: leakMentions>0?'up':'ok',
+      desc: leakMentions>0
+        ? `${leakMentions} mention(s) de fuite/exposition détectée(s) dans les flux CTI surveillés sur la période récente.`
+        : 'Aucune mention de fuite ou exposition de données dans les flux CTI surveillés actuellement.' },
+    { label:'CVE activement exploitées (flux)', status: cveExploitedMentions>2?'alert':cveExploitedMentions>0?'warn':'ok',
+      count: cveExploitedMentions, trend: cveExploitedMentions>0?'up':'ok',
+      desc: `${cveExploitedMentions} référence(s) à une exploitation active détectée(s) dans les titres des flux CTI.` },
+    { label:'Supply chain — mentions prestataires', status: supplyChainMentions>1?'warn':'ok',
+      count: supplyChainMentions, trend: supplyChainMentions>0?'up':'ok',
+      desc: `${supplyChainMentions} mention(s) liée(s) à la chaîne d'approvisionnement / prestataires dans les flux.` },
+  ];
+
+  // ── 5. Benchmark sectoriel (placeholder structurel, ajusté par le volume d'incidents) ──
+  // Pas de vraie source publique pour ces 6 indicateurs : on les ancre sur le
+  // volume réel d'alertes santé pour donner un signal directionnel cohérent,
+  // mais ce ne sont PAS des mesures officielles sectorielles.
+  const totalAlerts = items.length;
+  const sectorPressure = Math.min(100, Math.round((totalAlerts / 40) * 100));
+  const benchmarkOC = [85, 78, Math.max(40, 100-sectorPressure*0.6), 55, 70, 67];
+  const benchmarkSector = [50, 54, Math.max(30, 100-sectorPressure*0.3), 62, 75, 58];
+
+  return {
+    days, cveTrend, alertTrend, incidentTrend, alertThreshold, trendYMax,
+    typeLabels, typeData, vectorLabels, vectorData, vectorYMax,
+    osintData, benchmarkOC, benchmarkSector,
+    totalItems: items.length,
+  };
+}
+
+// Reconstruit tous les visuels dynamiques à partir de lastCollectedItems.
+// Appelé une fois que tous les flux ont fini de se charger.
+function refreshDynamicVisuals() {
+  const analysis = analyzeThreatActivity(lastCollectedItems);
+  initCharts(analysis);
+  renderOSINT(analysis.osintData);
+  updateKPIsFromAnalysis(analysis);
+}
+
+function updateKPIsFromAnalysis(analysis) {
+  const valEl = document.querySelector('.kpi.c-yellow .kpi-val');
+  const subEl = document.querySelector('.kpi.c-yellow .kpi-sub');
+  if (valEl) valEl.textContent = analysis.totalItems;
+  if (subEl) subEl.textContent = analysis.totalItems > 0
+    ? 'CERT-FR · ANS · flux temps réel (' + analysis.totalItems + ' items)'
+    : 'CERT-FR · ANS · CISA Medical';
+}
+
 async function loadAllFeeds() {
   await Promise.all([
     loadFeedPanel('alertes','alertes'),
@@ -1673,6 +1991,38 @@ async function loadAllFeeds() {
     loadFeedPanel('menaces','menaces'),
     loadFeedPanel('rgpd','rgpd'),
   ]);
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ACTUALISATION MANUELLE — vide le cache et recharge tout
+// ═══════════════════════════════════════════════════════════
+async function refreshAllFeeds() {
+  const btn = document.getElementById('btn-refresh');
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Actualisation…';
+
+  // Vider le cache sessionStorage des flux pour forcer un re-fetch
+  Object.keys(sessionStorage)
+    .filter(k => k.startsWith('feedcache:'))
+    .forEach(k => sessionStorage.removeItem(k));
+
+  // Remettre les panneaux en état "chargement"
+  ['alertes','cve','sante','menaces','rgpd'].forEach(id => {
+    document.getElementById('panel-'+id).innerHTML = '<div class="feed-loading"><span class="spinner"></span>Chargement…</div>';
+  });
+  document.getElementById('certfr-feed').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>';
+  document.getElementById('cyberveille-feed').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>';
+
+  try {
+    lastCollectedItems = [];
+    await Promise.all([loadAllFeeds(), loadCTIPanels()]);
+    refreshDynamicVisuals();
+    setTimestamp();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
 }
 </script>
 </body>
