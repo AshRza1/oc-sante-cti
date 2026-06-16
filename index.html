@@ -377,6 +377,26 @@
   </div>
 </div>
 
+<!-- DIAGNOSTIC RSS -->
+<div class="sec-title no-print">
+  <h2>Diagnostic flux RSS</h2><div class="hr"></div>
+  <span style="font-size:.65rem;color:var(--t3);white-space:nowrap" id="diag-summary">en attente…</span>
+</div>
+<div class="card no-print" id="diag-card" style="display:none;">
+  <div class="card-body" style="padding:.75rem 1.1rem;">
+    <table style="width:100%;font-size:.7rem;border-collapse:collapse;" id="diag-table">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:.3rem .5rem;color:var(--t3);">Flux</th>
+          <th style="text-align:left;padding:.3rem .5rem;color:var(--t3);">Proxy réussi</th>
+          <th style="text-align:left;padding:.3rem .5rem;color:var(--t3);">Détail</th>
+        </tr>
+      </thead>
+      <tbody id="diag-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
 <!-- CHARTS -->
 <div class="sec-title">
   <h2>Tendances</h2><div class="hr"></div>
@@ -384,7 +404,7 @@
 <div class="charts-row">
   <div class="card">
     <div class="card-hdr">
-      <h3>Évolution des menaces – 30 derniers jours</h3>
+      <h3>Évolution des menaces – 7 derniers jours</h3>
       <span style="font-size:.65rem;color:var(--t3)">CVE + Incidents + Alertes</span>
     </div>
     <div class="card-body"><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
@@ -1082,8 +1102,52 @@ document.addEventListener('DOMContentLoaded', () => {
 // dynamiques une fois que TOUT est arrivé (ou a échoué en mock).
 async function loadFeedsAndAnalyze() {
   lastCollectedItems = [];
+  diagLog = [];
   await Promise.all([loadAllFeeds(), loadCTIPanels()]);
   refreshDynamicVisuals();
+  renderDiagnostic();
+}
+
+function renderDiagnostic() {
+  const card = document.getElementById('diag-card');
+  const tbody = document.getElementById('diag-tbody');
+  const summary = document.getElementById('diag-summary');
+  if (!card || !tbody) return;
+
+  // On regroupe par flux : on garde la dernière tentative réussie si elle
+  // existe, sinon toutes les tentatives échouées pour ce flux.
+  const byFeed = {};
+  diagLog.forEach(entry => {
+    if (!byFeed[entry.feedUrl]) byFeed[entry.feedUrl] = [];
+    byFeed[entry.feedUrl].push(entry);
+  });
+
+  const rows = Object.entries(byFeed).map(([feedUrl, entries]) => {
+    const success = entries.find(e => e.success);
+    const shortUrl = feedUrl.replace(/^https?:\/\//, '').slice(0, 45);
+    if (success) {
+      return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:.3rem .5rem;color:var(--t2);">${shortUrl}</td>
+        <td style="padding:.3rem .5rem;color:var(--green);font-weight:600;">${success.proxy}</td>
+        <td style="padding:.3rem .5rem;color:var(--t3);">${success.detail}</td>
+      </tr>`;
+    }
+    const lastFail = entries[entries.length - 1];
+    return `<tr style="border-bottom:1px solid var(--border);">
+      <td style="padding:.3rem .5rem;color:var(--t2);">${shortUrl}</td>
+      <td style="padding:.3rem .5rem;color:var(--red);font-weight:600;">échec (${entries.length} proxies testés)</td>
+      <td style="padding:.3rem .5rem;color:var(--t3);">${lastFail?.detail || '—'}</td>
+    </tr>`;
+  });
+
+  const totalFeeds = Object.keys(byFeed).length;
+  const successFeeds = Object.values(byFeed).filter(e => e.some(x => x.success)).length;
+  summary.textContent = `${successFeeds} / ${totalFeeds} flux récupérés en direct — dernière vérification ${new Date().toLocaleTimeString('fr-FR')}`;
+
+  if (rows.length) {
+    card.style.display = '';
+    tbody.innerHTML = rows.join('');
+  }
 }
 
 function setTimestamp() {
@@ -1135,8 +1199,10 @@ async function silentRefreshFeeds() {
 
   try {
     lastCollectedItems = [];
+    diagLog = [];
     await Promise.all([loadAllFeeds(), loadCTIPanels()]);
     refreshDynamicVisuals();
+    renderDiagnostic();
     setTimestamp();
 
     const newUrls = Array.from(document.querySelectorAll('.feed-item .fi-title a, .cti-item .cti-title'))
@@ -1623,16 +1689,28 @@ const RSS_PROXIES = [
       return json.items.map(it => ({ title: it.title, link: it.link, pubDate: it.pubDate }));
     }
   },
+  // codetabs : relai XML brut, généralement fiable et sans quota strict
+  {
+    name: 'codetabs',
+    build: feedUrl => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(feedUrl),
+    parse: async res => parseRssXml(await res.text())
+  },
   // corsproxy.io : relaie le flux XML brut, on parse nous-mêmes
   {
     name: 'corsproxy.io',
     build: feedUrl => 'https://corsproxy.io/?url=' + encodeURIComponent(feedUrl),
     parse: async res => parseRssXml(await res.text())
   },
-  // allorigins : autre relai XML brut, en dernier recours
+  // allorigins : autre relai XML brut
   {
     name: 'allorigins',
     build: feedUrl => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(feedUrl),
+    parse: async res => parseRssXml(await res.text())
+  },
+  // thingproxy : dernier recours
+  {
+    name: 'thingproxy',
+    build: feedUrl => 'https://thingproxy.freeboard.io/fetch/' + feedUrl,
     parse: async res => parseRssXml(await res.text())
   },
 ];
@@ -1689,6 +1767,10 @@ async function fetchWithTimeout(url, ms) {
   }
 }
 
+// Journal de diagnostic : trace chaque tentative proxy pour chaque flux,
+// affiché directement dans le dashboard (pas seulement la console).
+let diagLog = [];
+
 async function fetchFeed(feedUrl, sourceName) {
   const cached = getCachedFeed(feedUrl);
   if (cached) return hydrateFeedItems(cached, sourceName);
@@ -1700,9 +1782,11 @@ async function fetchFeed(feedUrl, sourceName) {
       const rawItems = await proxy.parse(res);
       if (!rawItems?.length) throw new Error('vide');
       setCachedFeed(feedUrl, rawItems);
+      diagLog.push({ feedUrl, success: true, proxy: proxy.name, detail: rawItems.length + ' items bruts' });
       return hydrateFeedItems(rawItems, sourceName);
     } catch (e) {
       console.warn(`[RSS] ${proxy.name} a échoué pour ${feedUrl}:`, e.message);
+      diagLog.push({ feedUrl, success: false, proxy: proxy.name, detail: e.message });
       continue; // proxy suivant
     }
   }
@@ -1884,8 +1968,8 @@ function countKeywordMatches(items, kws) {
 }
 
 function analyzeThreatActivity(items) {
-  // ── 1. Tendance sur 30 jours (volume réel d'items collectés par jour) ──
-  const NUM_DAYS = 30;
+  // ── 1. Tendance sur 7 jours (volume réel d'items collectés par jour) ──
+  const NUM_DAYS = 7;
   const today = new Date();
   const days = [];
   const dayKeys = [];
@@ -2016,8 +2100,10 @@ async function refreshAllFeeds() {
 
   try {
     lastCollectedItems = [];
+    diagLog = [];
     await Promise.all([loadAllFeeds(), loadCTIPanels()]);
     refreshDynamicVisuals();
+    renderDiagnostic();
     setTimestamp();
   } finally {
     btn.disabled = false;
