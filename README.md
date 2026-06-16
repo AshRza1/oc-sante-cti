@@ -49,10 +49,6 @@ Le dashboard est conçu selon une architecture légère, sans dépendance serveu
 | Notifications | Web Notifications API | Alertes push navigateur en temps réel |
 | Carte géo. | SVG inline + animations CSS | Cartographie des menaces géolocalisées |
 
-### Gestion des flux RSS
-
-Les flux RSS institutionnels ne peuvent pas être appelés directement depuis un navigateur (restriction CORS). Le dashboard interroge automatiquement **plusieurs proxies CORS en cascade** : si le premier échoue (quota dépassé, panne), le suivant est tenté automatiquement, jusqu'à 5 proxies différents par flux. Un filtre de fraîcheur à 6 mois élimine les articles obsolètes, et une validation d'URL filtre les liens malformés générés par certains flux. En cas d'échec de tous les proxies, des données de secours (mock) régulièrement actualisées sont affichées à la place, avec une mention explicite à l'utilisateur.
-
 ## Sources de données
 
 - **CERT-FR** ([cert.ssi.gouv.fr](https://www.cert.ssi.gouv.fr/)) — flux RSS officiels des alertes, avis, rapports CTI, indicateurs de compromission (IOC), recommandations de durcissement (DUR) et bulletins d'actualité
@@ -60,48 +56,5 @@ Les flux RSS institutionnels ne peuvent pas être appelés directement depuis un
 - **NVD NIST** — base de données nationale des vulnérabilités (CVE) américaine
 - **CNIL** — sanctions et actualités RGPD, en particulier sur les données de santé
 - **Flux de veille générale** : BleepingComputer, Krebs on Security, The Hacker News, Healthcare IT News, HIPAA Journal, SecurityWeek, Dark Reading, Help Net Security, Graham Cluley, Cybersecurity Dive, EDPB
-
-## Fonctionnalités
-
-### À destination des dirigeants
-
-- **Export PDF** — génération en un clic d'une capture complète du dashboard, sans logiciel supplémentaire, adaptée à une présentation COMEX ou un rapport mensuel
-- **Indicateurs clés (KPIs)** — CVE critiques actives, niveau de menace global, groupes de menaces actifs, actifs surveillés, sources CTI actives
-- **Résumé exécutif — Questions RSSI** — statut immédiat (à risque / sous contrôle) sur les questions stratégiques qu'un RSSI doit pouvoir répondre à tout moment
-- **Alertes Push** — notifications navigateur en temps réel dès qu'une CVE critique (CVSS ≥ 9.0) ou une alerte CERT-FR critique est détectée
-- **Graphique de tendances** — évolution des CVE publiées, alertes santé et incidents secteur sur les jours récents, avec seuil d'alerte visuel
-- **Cartographie géographique** — visualisation animée des flux d'attaques par origine géographique (Russie, Corée du Nord, Chine, Iran) vers OC Santé
-
-### Techniques avancées
-
-- **Veille CTI institutionnelle** — panneau ANS Cyberveille Santé en temps réel, avec données de secours en cas d'indisponibilité du flux
-- **Table de CVE critiques** — identifiant cliquable vers la fiche NVD, score CVSS, statut d'exploitation active, actifs OC Santé concernés
-- **Gestion des correctifs (Patch Management)** — calendrier de priorisation des mises à jour de sécurité
-- **Surveillance OSINT** — veille en sources ouvertes sur les mentions, fuites ou expositions potentielles d'OC Santé
-- **Acteurs de menaces** — fiches expansibles des groupes cybercriminels actifs (TTPs MITRE ATT&CK, IOC, liens vers rapports ANSSI/CISA/FBI)
-- **Surface d'attaque surveillée** — recensement des 43 actifs numériques exposés (masqué dans la démo pour confidentialité)
-- **Diagnostic des flux RSS** — tableau de bord interne indiquant pour chaque flux quel proxy a réussi ou échoué, pour faciliter le suivi technique
-
-## Déploiement
-
-Le dashboard est hébergé sur **GitHub Pages** : [ashrza1.github.io/oc-sante-cti](https://ashrza1.github.io/oc-sante-cti/). Toute modification du fichier `index.html` poussée sur la branche principale est automatiquement republiée en ligne.
-
-Les données en temps réel (flux CERT-FR, ANS, etc.) sont récupérées à chaque chargement de la page. Les données structurelles (liste des CVE, acteurs de menaces, actifs surveillés) sont mises à jour manuellement dans le fichier source lors de chaque revue de sécurité.
-
-### Mettre à jour le site
-
-1. Modifier `index.html` localement ou directement dans l'éditeur GitHub
-2. Committer les changements sur la branche `main`
-3. GitHub Pages republie automatiquement le site (généralement en moins d'une minute)
-
-## Recommandations d'évolution
-
-- Intégrer une API NVD officielle pour récupérer automatiquement les CVE en temps réel
-- Connecter un SIEM pour alimenter les KPIs depuis des données réelles
-- Ajouter une authentification (OAuth) pour restreindre l'accès au dashboard
-- Mettre en place des alertes e-mail automatiques pour les CVE critiques
-- Développer une version mobile optimisée pour les dirigeants en déplacement
-
----
 
 *Projet OpenInnov 2025–2026 · OC Santé CTI Dashboard*
