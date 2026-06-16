@@ -340,8 +340,8 @@
     </div>
     <div class="hdr-right">
       <div class="threat-chip chip-high"><div class="dot-pulse"></div><span>Menace : ÉLEVÉE</span></div>
-      <button class="hdr-btn no-print" id="btn-notif" onclick="toggleNotif()">🔔 Alertes Push</button>
-      <button class="hdr-btn no-print" onclick="exportPDF()">📄 Export PDF</button>
+      <button class="hdr-btn no-print" id="btn-notif" onclick="toggleNotif()">Alertes Push</button>
+      <button class="hdr-btn no-print" onclick="exportPDF()">Export PDF</button>
       <div class="upd" id="last-update">Mise à jour : chargement…</div>
     </div>
   </div>
@@ -357,26 +357,22 @@
   <div class="kpi c-red">
     <div class="kpi-label">CVE Critiques actives</div>
     <div class="kpi-val">47</div>
-    <div class="kpi-sub">↑ 8 depuis 7 jours · dont 12 exploitées</div>
-    <div class="kpi-icon">⚠️</div>
+    <div class="kpi-sub">+8 depuis 7 jours · dont 12 exploitées</div>
   </div>
   <div class="kpi c-orange">
     <div class="kpi-label">Groupes Ransomware actifs</div>
     <div class="kpi-val">6</div>
     <div class="kpi-sub">Ciblant le secteur santé en France</div>
-    <div class="kpi-icon">🎯</div>
   </div>
   <div class="kpi c-yellow">
     <div class="kpi-label">Alertes Santé / 30 jours</div>
     <div class="kpi-val">23</div>
     <div class="kpi-sub">CERT-FR · ANS · CISA Medical</div>
-    <div class="kpi-icon">📡</div>
   </div>
   <div class="kpi c-green">
     <div class="kpi-label">Sources CTI surveillées</div>
     <div class="kpi-val">18</div>
     <div class="kpi-sub">Flux RSS · API · Institutionnel</div>
-    <div class="kpi-icon">✅</div>
   </div>
 </div>
 
@@ -387,17 +383,17 @@
 <div class="charts-row">
   <div class="card">
     <div class="card-hdr">
-      <h3>📉 Évolution des menaces – 30 derniers jours</h3>
+      <h3>Évolution des menaces – 30 derniers jours</h3>
       <span style="font-size:.65rem;color:var(--t3)">CVE + Incidents + Alertes</span>
     </div>
     <div class="card-body"><div class="chart-wrap"><canvas id="chartTrend"></canvas></div></div>
   </div>
   <div class="card">
-    <div class="card-hdr"><h3>🍩 Types de menaces</h3></div>
+    <div class="card-hdr"><h3>Types de menaces</h3></div>
     <div class="card-body"><div class="chart-wrap"><canvas id="chartTypes"></canvas></div></div>
   </div>
   <div class="card">
-    <div class="card-hdr"><h3>🔀 Vecteurs d'attaque</h3></div>
+    <div class="card-hdr"><h3>Vecteurs d'attaque</h3></div>
     <div class="card-body"><div class="chart-wrap"><canvas id="chartVectors"></canvas></div></div>
   </div>
 </div>
@@ -415,7 +411,7 @@
         <span style="background:#005f9e;color:#fff;padding:.15rem .45rem;border-radius:4px;font-size:.65rem">ANS</span>
         Cyberveille e-Santé — Vulnérabilités
       </h3>
-      <a class="cti-open-btn" href="https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites" target="_blank" rel="noopener">↗ Ouvrir</a>
+      <a class="cti-open-btn" href="https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites" target="_blank" rel="noopener">Ouvrir</a>
     </div>
     <div class="cti-feed" id="cyberveille-feed">
       <div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>
@@ -429,7 +425,7 @@
         <span style="background:#003189;color:#fff;padding:.15rem .45rem;border-radius:4px;font-size:.65rem">CERT-FR</span>
         cert.ssi.gouv.fr — Alertes &amp; Avis
       </h3>
-      <a class="cti-open-btn" href="https://www.cert.ssi.gouv.fr/" target="_blank" rel="noopener">↗ Ouvrir</a>
+      <a class="cti-open-btn" href="https://www.cert.ssi.gouv.fr/" target="_blank" rel="noopener">Ouvrir</a>
     </div>
     <div class="cti-feed" id="certfr-feed">
       <div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>
@@ -445,14 +441,14 @@
 <div class="two-col">
   <div class="card">
     <div class="card-hdr">
-      <h3>🆘 CVE critiques — Secteur Santé</h3>
+      <h3>CVE critiques — Secteur Santé</h3>
       <span style="font-size:.65rem;color:var(--t3)">Cliquez pour ouvrir la fiche NVD</span>
     </div>
     <div id="cve-list"></div>
   </div>
   <div class="card">
     <div class="card-hdr">
-      <h3>🕵️ Groupes menaçants actifs — Santé FR/EU</h3>
+      <h3>Groupes menaçants actifs — Santé FR/EU</h3>
       <span style="font-size:.65rem;color:var(--t3)">Cliquez pour voir les sources</span>
     </div>
     <div class="actor-list" id="actor-list"></div>
@@ -465,11 +461,11 @@
 </div>
 <div class="card">
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('alertes',this)">🚨 Alertes Institutionnelles</button>
-    <button class="tab" onclick="switchTab('cve',this)">🔓 CVE &amp; Vulnérabilités</button>
-    <button class="tab" onclick="switchTab('sante',this)">🏥 Cybermenaces Santé</button>
-    <button class="tab" onclick="switchTab('menaces',this)">🌐 Veille Générale</button>
-    <button class="tab" onclick="switchTab('rgpd',this)">📋 RGPD &amp; Conformité</button>
+    <button class="tab active" onclick="switchTab('alertes',this)">Alertes Institutionnelles</button>
+    <button class="tab" onclick="switchTab('cve',this)">CVE &amp; Vulnérabilités</button>
+    <button class="tab" onclick="switchTab('sante',this)">Cybermenaces Santé</button>
+    <button class="tab" onclick="switchTab('menaces',this)">Veille Générale</button>
+    <button class="tab" onclick="switchTab('rgpd',this)">RGPD &amp; Conformité</button>
   </div>
   <div class="feed-panel active" id="panel-alertes"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
   <div class="feed-panel" id="panel-cve"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
@@ -517,7 +513,7 @@
 </div>
 <div class="card">
   <div class="card-hdr">
-    <h3>🔗 Exposition CVE par actif OC Santé</h3>
+    <h3>Exposition CVE par actif OC Santé</h3>
     <span style="font-size:.65rem;color:var(--t3)">Score = CVSS × Impact SI × Exposition réseau</span>
   </div>
   <div class="card-body" style="padding:0">
@@ -547,8 +543,8 @@
       <div style="font-size:.72rem;color:var(--t2)">Synthèse exécutive : KPIs · Menaces critiques · Plan d'action · Benchmark sectoriel</div>
     </div>
     <div style="display:flex;gap:.6rem;flex-wrap:wrap;">
-      <button class="btn-primary" onclick="exportPDF()">📄 Générer PDF (Ctrl+P)</button>
-      <button class="hdr-btn" onclick="copyReport()">📋 Copier résumé</button>
+      <button class="btn-primary" onclick="exportPDF()">Générer PDF (Ctrl+P)</button>
+      <button class="hdr-btn" onclick="copyReport()">Copier résumé</button>
     </div>
   </div>
 </div>
@@ -559,7 +555,7 @@
 </div>
 <div class="card">
   <div class="card-hdr">
-    <h3>🗺️ Origines des attaquants ciblant OC Santé</h3>
+    <h3>Origines des attaquants ciblant OC Santé</h3>
     <span style="font-size:.65rem;color:var(--t3)">Source : ANSSI · CISA · Europol</span>
   </div>
   <div class="geo-wrap">
@@ -676,7 +672,7 @@
 
       <!-- Label cible -->
       <rect x="390" y="192" width="200" height="48" rx="6" fill="rgba(29,78,216,.1)" stroke="#1d4ed8" stroke-width="1.5"/>
-      <text x="490" y="207" text-anchor="middle" font-size="9" fill="#1d4ed8" font-weight="bold">🎯 CIBLE : OC SANTÉ</text>
+      <text x="490" y="207" text-anchor="middle" font-size="9" fill="#1d4ed8" font-weight="bold">CIBLE : OC SANTÉ</text>
       <text x="490" y="220" text-anchor="middle" font-size="8" fill="#334155">Montpellier · Occitanie</text>
       <text x="490" y="232" text-anchor="middle" font-size="8" fill="#dc2626" font-weight="bold">Niveau menace : ÉLEVÉ</text>
 
@@ -710,7 +706,7 @@
 </div>
 <div class="card">
   <div class="card-hdr">
-    <h3>🩹 Plan de remédiation CVE – OC Santé</h3>
+    <h3>Plan de remédiation CVE – OC Santé</h3>
     <span style="font-size:.65rem;color:var(--t3)">Source : CISA KEV · CERT-FR · NVD</span>
   </div>
   <div class="card-body" style="padding:0">
@@ -737,7 +733,7 @@
 </div>
 <div class="card">
   <div class="card-hdr">
-    <h3>👁️ Monitoring exposition OC Santé</h3>
+    <h3>Monitoring exposition OC Santé</h3>
     <span style="font-size:.65rem;color:var(--t3)">Scan : pastes, forums, Telegram, leak sites</span>
   </div>
   <div class="osint-grid" id="osint-grid"></div>
@@ -749,7 +745,7 @@
 </div>
 <div class="card">
   <div class="card-hdr">
-    <h3>📈 OC Santé vs Secteur Santé France</h3>
+    <h3>OC Santé vs Secteur Santé France</h3>
     <span style="font-size:.65rem;color:var(--t3)">Source : CNIL · ANSSI · Données sectorielles 2025</span>
   </div>
   <div class="benchmark-grid">
@@ -758,12 +754,12 @@
       <table class="bench-table">
         <thead><tr><th>Indicateur</th><th>OC Santé</th><th>Secteur</th><th>Écart</th></tr></thead>
         <tbody>
-          <tr><td>Délai moyen patch critique</td><td class="bench-val">12 j</td><td>21 j</td><td class="bench-val bench-better">▼ 43%</td></tr>
-          <tr><td>Couverture MFA</td><td class="bench-val">78%</td><td>54%</td><td class="bench-val bench-better">▲ +24</td></tr>
-          <tr><td>Incidents/an déclarés</td><td class="bench-val">2</td><td>4.7</td><td class="bench-val bench-better">▼ 57%</td></tr>
-          <tr><td>Actifs exposés (DMZ)</td><td class="bench-val">43</td><td>38</td><td class="bench-val bench-worse">▲ +13%</td></tr>
-          <tr><td>Budget cyber/CA</td><td class="bench-val">1.8%</td><td>2.1%</td><td class="bench-val bench-worse">▼ -14%</td></tr>
-          <tr><td>Score NIS2 readiness</td><td class="bench-val">67/100</td><td>58/100</td><td class="bench-val bench-better">▲ +15%</td></tr>
+          <tr><td>Délai moyen patch critique</td><td class="bench-val">12 j</td><td>21 j</td><td class="bench-val bench-better">-43%</td></tr>
+          <tr><td>Couverture MFA</td><td class="bench-val">78%</td><td>54%</td><td class="bench-val bench-better">+24</td></tr>
+          <tr><td>Incidents/an déclarés</td><td class="bench-val">2</td><td>4.7</td><td class="bench-val bench-better">-57%</td></tr>
+          <tr><td>Actifs exposés (DMZ)</td><td class="bench-val">43</td><td>38</td><td class="bench-val bench-worse">+13%</td></tr>
+          <tr><td>Budget cyber/CA</td><td class="bench-val">1.8%</td><td>2.1%</td><td class="bench-val bench-worse">-14%</td></tr>
+          <tr><td>Score NIS2 readiness</td><td class="bench-val">67/100</td><td>58/100</td><td class="bench-val bench-better">+15%</td></tr>
         </tbody>
       </table>
     </div>
@@ -777,7 +773,7 @@
 <div class="card">
   <div class="ai-wrap">
     <div class="ai-header">
-      <div class="ai-badge">🤖 IA CTI · Analyse juin 2026</div>
+      <div class="ai-badge">IA CTI · Analyse juin 2026</div>
       <div style="font-size:.65rem;color:var(--t3)">Synthèse hebdomadaire générée automatiquement</div>
     </div>
     <div class="ai-text" id="ai-text">Chargement de la synthèse IA…</div>
@@ -817,7 +813,7 @@
       <li>43 actifs exposés (DMZ + IPs publics)</li>
       <li>CVE-2025-0282 : VPN Ivanti potentiel</li>
       <li>Surveillance dark web : 0 fuite détectée</li>
-      <li>Score NIS2 : 67/100 → plan remédiation</li>
+      <li>Score NIS2 : 67/100 — plan remédiation</li>
     </ul>
   </div>
   <div class="q-card">
@@ -837,7 +833,6 @@
   <h2>Surface Surveillée</h2><div class="hr"></div>
 </div>
 <div style="display:flex;align-items:center;gap:1rem;padding:1.2rem 1.5rem;background:#f0f4f9;border:1.5px dashed #b8cce0;border-radius:10px;color:#475569;font-size:.85rem;">
-  <span style="font-size:1.5rem;">🔒</span>
   <div>
     <strong style="color:#1d4ed8;">Données masquées pour la démonstration</strong><br>
     La surface d'attaque OC Santé (43 actifs — domaines &amp; IPs exposés) est disponible dans la version opérationnelle. Elle n'est pas affichée ici pour des raisons de confidentialité.
@@ -1102,12 +1097,12 @@ function renderCVEs() {
         <div class="cve-lbl">${sevLabel(c.sev)}</div>
       </div>
       <div style="flex:1">
-        <a class="cve-id" href="https://nvd.nist.gov/vuln/detail/${c.id}" target="_blank" rel="noopener">${c.id} ↗</a>
+        <a class="cve-id" href="https://nvd.nist.gov/vuln/detail/${c.id}" target="_blank" rel="noopener">${c.id}</a>
         <div class="cve-prod">${c.prod}</div>
         <div class="tags">
-          ${c.exploited?'<span class="tag tag-red">⚡ Exploitée</span>':''}
-          ${c.health?'<span class="tag tag-cyan">🏥 Santé</span>':''}
-          <span class="tag tag-green">🔗 NVD</span>
+          ${c.exploited?'<span class="tag tag-red">Exploitée</span>':''}
+          ${c.health?'<span class="tag tag-cyan">Santé</span>':''}
+          <span class="tag tag-green">NVD</span>
         </div>
       </div>
     </div>
@@ -1122,12 +1117,12 @@ function renderActors() {
     <div class="actor" onclick="toggleActor(${i})">
       <div class="actor-top">
         <div>
-          <div class="actor-name">${a.name} <span style="font-size:.6rem;color:var(--t3);font-weight:400">▼ sources</span></div>
+          <div class="actor-name">${a.name} <span style="font-size:.6rem;color:var(--t3);font-weight:400">sources</span></div>
           <div class="actor-type">${a.type} · ${a.origin}</div>
         </div>
         <div class="actor-score ${a.sc}">${a.score}</div>
       </div>
-      <div style="font-size:.67rem;color:var(--t2);margin:.2rem 0 .35rem">🎯 ${a.targets}</div>
+      <div style="font-size:.67rem;color:var(--t2);margin:.2rem 0 .35rem">${a.targets}</div>
       <div style="font-size:.6rem;color:var(--t3);margin-bottom:.3rem">TTPs : ${a.ttps.join(' · ')}</div>
       <div class="actor-bar"><div class="actor-fill" style="width:${a.activity}%;background:${a.color}"></div></div>
       <div class="actor-links" id="actor-links-${i}">
@@ -1190,10 +1185,10 @@ function renderPatchTable() {
     due.setDate(due.getDate() + p.deadline);
     const dueStr = due.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
     const urgEl = p.urgency==='imm'
-      ? '<span class="urgency urg-imm">🔴 IMMÉDIAT</span>'
+      ? '<span class="urgency urg-imm">IMMÉDIAT</span>'
       : p.urgency==='high'
-        ? '<span class="urgency urg-high">🟠 HAUTE</span>'
-        : '<span class="urgency urg-med">🟡 MODÉRÉE</span>';
+        ? '<span class="urgency urg-high">HAUTE</span>'
+        : '<span class="urgency urg-med">MODÉRÉE</span>';
     const pct = Math.max(5, 100 - (p.deadline/30)*100);
     const barCol = p.urgency==='imm'?'var(--red)':p.urgency==='high'?'var(--orange)':'var(--yellow)';
     return `<tr>
@@ -1214,8 +1209,8 @@ function renderOSINT() {
   document.getElementById('osint-grid').innerHTML = OSINT_DATA.map(o => {
     const dotClass = o.status==='alert'?'osint-alert':o.status==='warn'?'osint-warn':'osint-ok';
     const trendEl = o.trend==='up'
-      ? `<span class="trend-up">↑ En hausse</span>`
-      : `<span class="trend-ok">✓ Stable</span>`;
+      ? `<span class="trend-up">En hausse</span>`
+      : `<span class="trend-ok">Stable</span>`;
     const countColor = o.status==='ok'?'var(--green)':o.status==='warn'?'var(--yellow)':'var(--red)';
     return `<div class="osint-card">
       <div class="osint-status">
@@ -1277,17 +1272,16 @@ function activateAlerts() {
     if (perm === 'granted') {
       notifActive = true;
       btn.classList.add('active-notif');
-      btn.textContent = '🔔 Alertes actives';
+      btn.textContent = 'Alertes actives';
       addNotifEntry('notif-info', 'ACTIF', `Surveillance démarrée – seuil CVSS ≥ ${threshold}`);
       // Notification de démonstration
       new Notification('OC Santé CTI – Alerte active', {
         body: `Surveillance CVE CVSS ≥ ${threshold} activée`,
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏥</text></svg>'
       });
       // Alerte CVE immédiate si seuil franchi
       CVES.filter(c=>c.score>=threshold).forEach(c=>{
         setTimeout(()=>{
-          new Notification(`⚠️ CVE ${c.id} – CVSS ${c.score}`, {
+          new Notification(`CVE ${c.id} – CVSS ${c.score}`, {
             body: `${c.prod} – Exploitation active détectée`,
           });
           addNotifEntry('notif-new','ALERTE',`${c.id} · CVSS ${c.score} · ${c.prod}`);
@@ -1311,7 +1305,7 @@ function toggleNotif() {
   if (notifActive) {
     notifActive = false;
     document.getElementById('btn-notif').classList.remove('active-notif');
-    document.getElementById('btn-notif').textContent = '🔔 Alertes Push';
+    document.getElementById('btn-notif').textContent = 'Alertes Push';
     addNotifEntry('notif-info','ARRÊTÉ','Surveillance notifications désactivée');
   } else {
     activateAlerts();
@@ -1457,16 +1451,14 @@ function initCharts() {
           bodyFont:{size:10.5},
           padding:10,
           callbacks:{
-            title: ctx => '📅 ' + ctx[0].label,
+            title: ctx => ctx[0].label,
             label: ctx => {
               if (ctx.dataset.label === 'Seuil d\'alerte CVE') return null;
-              const icons = {'CVE publiées':'⚠️','Alertes santé':'🏥','Incidents secteur':'🔴'};
-              const icon = icons[ctx.dataset.label] || '';
-              return ` ${icon} ${ctx.dataset.label} : ${ctx.parsed.y}`;
+              return ` ${ctx.dataset.label} : ${ctx.parsed.y}`;
             },
             afterBody: ctx => {
               const cve = ctx.find(c=>c.dataset.label==='CVE publiées');
-              if (cve && cve.parsed.y >= 12) return ['', '⚡ Seuil d\'alerte dépassé'];
+              if (cve && cve.parsed.y >= 12) return ['', 'Seuil d\'alerte dépassé'];
               return [];
             }
           }
@@ -1484,7 +1476,7 @@ function initCharts() {
           ticks:{
             font:{size:9.5}, color:'#64748b', padding:8,
             stepSize:2, beginAtZero:true,
-            callback: v => v === 12 ? '⚠️ 12' : v,
+            callback: v => v,
           },
           beginAtZero:true,
           max: 20,
@@ -1581,13 +1573,13 @@ async function loadFeedPanel(panelId, feedKey) {
 
 function renderFeedItems(panel, items, isMock) {
   const badge = isMock
-    ? `<div style="font-size:.65rem;color:var(--t3);padding:.5rem 1.1rem;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border)">⚠️ Données représentatives (flux direct inaccessible depuis ce navigateur – CORS)</div>`
+    ? `<div style="font-size:.65rem;color:var(--t3);padding:.5rem 1.1rem;background:rgba(0,0,0,.2);border-bottom:1px solid var(--border)">Données représentatives (flux direct inaccessible depuis ce navigateur – CORS)</div>`
     : '';
   panel.innerHTML = badge + items.map(it=>`
     <div class="feed-item">
       <div class="fi-source">${it.source}</div>
       <div class="fi-title"><a href="${it.url}" target="_blank" rel="noopener">${it.title}</a></div>
-      <div class="fi-meta">📅 ${it.date}</div>
+      <div class="fi-meta">${it.date}</div>
     </div>
   `).join('');
 }
@@ -1620,7 +1612,7 @@ function renderCTIItems(containerId, items) {
     <div class="cti-item">
       <span class="cti-tag ${it.tagCls}">${it.tag}</span>
       <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
-      <div class="cti-meta">📅 ${it.date}</div>
+      <div class="cti-meta">${it.date}</div>
     </div>
   `).join('');
 }
@@ -1639,7 +1631,7 @@ async function loadCTIPanels() {
       <div class="cti-item">
         <span class="cti-tag ${it.source==='ALERTE'?'cti-tag-red':'cti-tag-blue'}">${it.source}</span>
         <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
-        <div class="cti-meta">📅 ${it.date}</div>
+        <div class="cti-meta">${it.date}</div>
       </div>
     `).join('');
   } else {
@@ -1662,7 +1654,7 @@ async function loadCTIPanels() {
       <div class="cti-item">
         <span class="cti-tag cti-tag-blue">ANS</span>
         <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
-        <div class="cti-meta">📅 ${it.date}</div>
+        <div class="cti-meta">${it.date}</div>
       </div>
     `).join('');
   } else {
