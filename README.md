@@ -23,18 +23,6 @@ CyberSight est une application web **statique** (fichier HTML unique) hébergée
 
 Le dashboard est conçu selon une architecture légère, sans dépendance serveur, permettant un déploiement immédiat et gratuit.
 
-### Technologies utilisées
-
-| Composant | Technologie | Rôle |
-|---|---|---|
-| Interface | HTML5 / CSS3 / JavaScript vanilla | Structure, style et logique du dashboard |
-| Graphiques | Chart.js 4.4.1 (CDN) | Courbes de tendances, radars, camemberts |
-| Flux RSS | Proxies CORS en cascade (rss2json, codetabs, corsproxy.io, allorigins, thingproxy) | Conversion RSS → JSON pour les flux institutionnels |
-| Hébergement | GitHub Pages | Déploiement statique, gratuit, HTTPS |
-| Export PDF | `window.print()` + CSS `@media print` | Export natif du navigateur, aucun serveur requis |
-| Notifications | Web Notifications API | Alertes push navigateur en temps réel |
-| Carte géo. | SVG inline + animations CSS | Cartographie des menaces géolocalisées |
-
 ## Sources de données
 
 - **CERT-FR** ([cert.ssi.gouv.fr](https://www.cert.ssi.gouv.fr/)) — flux RSS officiels des alertes, avis, rapports CTI, indicateurs de compromission (IOC), recommandations de durcissement (DUR) et bulletins d'actualité
