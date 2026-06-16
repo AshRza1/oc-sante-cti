@@ -29,7 +29,7 @@ CyberSight est une application web **statique** (fichier HTML unique) hébergée
 ## Contexte et enjeux
 
 - **Contexte** : le secteur de la santé représente **67 %** des cibles des groupes RaaS (Ransomware-as-a-Service) en 2026.
-- **Surface** : les cliniques OC Santé exposent **43 actifs numériques** (domaines et adresses IP) accessibles depuis Internet.
+- **Surface** : les cliniques OC Santé exposent ** des actifs numériques** (domaines et adresses IP) accessibles depuis Internet.
 - **Menaces** : des groupes comme **LockBit 3.0**, **RansomHub**, **Medusa** et **Lazarus Group** ciblent activement les établissements de santé français.
 - **Niveau** : le niveau de menace actuel sur OC Santé est évalué à **ÉLEVÉ**.
 
