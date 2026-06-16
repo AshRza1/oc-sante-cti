@@ -8,20 +8,6 @@ Projet **OpenInnov 2025–2026** · M1 Cybersécurité
 
 🔗 **Démo en ligne** : [ashrza1.github.io/oc-sante-cti](https://ashrza1.github.io/oc-sante-cti/)
 
----
-
-## Sommaire
-
-- [Présentation du projet](#présentation-du-projet)
-- [Contexte et enjeux](#contexte-et-enjeux)
-- [Architecture technique](#architecture-technique)
-- [Sources de données](#sources-de-données)
-- [Fonctionnalités](#fonctionnalités)
-- [Déploiement](#déploiement)
-- [Recommandations d'évolution](#recommandations-dévolution)
-
----
-
 ## Présentation du projet
 
 CyberSight est une application web **statique** (fichier HTML unique) hébergée sur GitHub Pages, accessible sans installation ni serveur applicatif. Elle a pour objectif de donner une vision tactique consolidée des menaces cyber ciblant le secteur santé, afin d'orienter les décisions de priorisation sécurité d'OC Santé.
