@@ -343,7 +343,7 @@
       <button class="hdr-btn no-print" id="btn-notif" onclick="toggleNotif()">Alertes Push</button>
       <button class="hdr-btn no-print" id="btn-refresh" onclick="refreshAllFeeds()">Actualiser les flux</button>
       <button class="hdr-btn no-print" onclick="exportPDF()">Export PDF</button>
-      <div class="upd" id="last-update">Mise à jour : chargement… <span style="opacity:.7">· auto-actualisation 5 min</span></div>
+      <div class="upd" id="last-update">Mise à jour : chargement…</div>
     </div>
   </div>
 </header>
@@ -1003,44 +1003,44 @@ const OSINT_DATA = [
 
 const MOCK = {
   alertes:[
-    { source:'CERT-FR', title:'Rapport menaces T1 2026 – recul du ransomware, essor de l\'exfiltration de données', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
+    { source:'CERT-FR', title:'Vulnérabilité dans Cisco Catalyst (16 juin 2026) – CVE-2026-20262 activement exploitée', date:'16/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0756/' },
+    { source:'CERT-FR', title:'Multiples vulnérabilités dans Redmine (16 juin 2026) – RCE, confidentialité, intégrité', date:'16/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0754/' },
+    { source:'CERT-FR', title:'Vulnérabilité dans Oracle PeopleSoft (12 juin 2026) – CVE-2026-35273 exploitée depuis le 27 mai', date:'12/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0749/' },
+    { source:'CERT-FR', title:'Vulnérabilité dans F5 BIG-IP Access Policy Manager (31 mars 2026) – CVE-2025-53521 exploitée', date:'31/03/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-004/' },
     { source:'CERT-FR', title:'Panorama de la cybermenace 2025 – frontière état/cybercriminel effacée', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
-    { source:'CERT-FR', title:'Bulletin CERTFR-2026-ACT-019 – vulnérabilités critiques semaine 17', date:'27/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-019/' },
-    { source:'CERT-FR', title:'L\'IA générative face aux attaques informatiques – analyse CERT-FR', date:'04/02/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-001/' },
-    { source:'CERT-FR', title:'Bulletin CERTFR-2026-ACT-012 – vulnérabilités Moxa, Schneider Electric', date:'23/03/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-012/' },
-    { source:'CERT Santé', title:'Cyberveille Santé – alertes et vulnérabilités dispositifs médicaux', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
+    { source:'CERT Santé', title:'Neutralisation des EDR comme étape préparatoire systématique des attaquants', date:'10/06/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
   ],
   cve:[
-    { source:'CISA Medical', title:'Fourth Frontier Frontier X2 – vulnérabilité application mobile cardiaque (ICSMA-26-148-01)', date:'28/05/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-26-148-01' },
-    { source:'CISA Medical', title:'Grassroots DICOM (GDCM) – vulnérabilité imagerie médicale (ICSMA-26-083-01)', date:'24/03/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-26-083-01' },
-    { source:'CISA Medical', title:'Eppendorf BioFlo 320 – vulnérabilité critique bioréacteur (ICSMA-26-146-01)', date:'26/05/2026', url:'https://www.cisa.gov/news-events/ics-medical-advisories/icsma-26-146-01' },
-    { source:'CERT-FR', title:'Bulletin CERTFR-2026-ACT-012 – vulnérabilités Moxa, Schneider Electric', date:'23/03/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-012/' },
-    { source:'CERT-FR', title:'Avis de sécurité CERT-FR – vulnérabilités logiciels et équipements médicaux', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/' },
-    { source:'CISA KEV', title:'Known Exploited Vulnerabilities Catalog – catalogue mis à jour juin 2026', date:'15/06/2026', url:'https://www.cisa.gov/known-exploited-vulnerabilities-catalog' },
+    { source:'Help Net Security', title:'Cisco discloses second exploited SD-WAN vulnerability in two weeks (CVE-2026-20262)', date:'16/06/2026', url:'https://www.helpnetsecurity.com/' },
+    { source:'SecurityWeek', title:'Cisco Patches Another SD-WAN Zero-Day – CVE-2026-20182, 6e exploitée en 2026 (UAT-8616)', date:'15/05/2026', url:'https://www.securityweek.com/cisco-patches-another-sd-wan-zero-day-the-sixth-exploited-in-2026/' },
+    { source:'Help Net Security', title:'Researchers release PoC for exploited Check Point VPN flaw (CVE-2026-50751) – lien Qilin ransomware', date:'12/06/2026', url:'https://www.helpnetsecurity.com/2026/06/12/cve-2026-50751-poc-exploit/' },
+    { source:'The Hacker News', title:'Critical Splunk Enterprise Flaw Lets Attackers Run Code Without Authentication (CVE-2026-20253, CVSS 9.8)', date:'13/06/2026', url:'https://thehackernews.com/2026/06/critical-splunk-enterprise-flaw-lets.html' },
+    { source:'SecurityWeek', title:'OpenSSL Patches High-Severity Vulnerability Found With AI – CVE-2026-45447, use-after-free PKCS#7', date:'10/06/2026', url:'https://www.securityweek.com/openssl-patches-high-severity-vulnerability-found-with-ai/' },
+    { source:'CERT-FR', title:'Vulnérabilité dans Oracle PeopleSoft – CVE-2026-35273 exploitée depuis le 27 mai 2026', date:'12/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0749/' },
   ],
   sante:[
-    { source:'CISA', title:'Key Risk and Vulnerability Findings for Healthcare and Public Health Sector', date:'15/06/2026', url:'https://www.cisa.gov/news-events/news/cisa-releases-key-risk-and-vulnerability-findings-healthcare-and-public-health-sector' },
-    { source:'CERT-FR', title:'Rapport menaces T1 2026 – impact sur les établissements de santé', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
-    { source:'CERT-FR', title:'Panorama de la cybermenace 2025 – APT et ransomware ciblant la santé', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
-    { source:'CERT Santé', title:'Cyberveille Santé – actualités alertes et incidents pour le secteur', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
-    { source:'Healthcare IT News', title:'Cybersécurité santé – actualités, incidents et analyses 2026', date:'15/06/2026', url:'https://www.healthcareitnews.com/cyber-security' },
-    { source:'HIPAA Journal', title:'Healthcare cybersecurity news – breaches and ransomware 2026', date:'15/06/2026', url:'https://www.hipaajournal.com/category/cybersecurity/' },
+    { source:'Malwarebytes', title:'NYC Health + Hospitals : fuite de données biométriques, diagnostics et coordonnées bancaires (1,8M de personnes)', date:'24/03/2026', url:'https://www.malwarebytes.com/blog/news/2026/05/biometrics-diagnoses-and-bank-details-exposed-in-major-healthcare-breach' },
+    { source:'Health IT Answers', title:'University of Mississippi Medical Center : ransomware ferme 35 cliniques externes, EHR Epic compromis', date:'03/06/2026', url:'https://www.healthitanswers.net/healthcare-cybersecurity-now-a-regulatory-issue-not-just-an-it-problem/' },
+    { source:'CERT Santé', title:'Neutralisation des EDR comme étape préparatoire systématique des attaquants – début 2026', date:'10/06/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
+    { source:'CERT Santé', title:'Fuites de données santé médiatisées : souvent des réexpositions de données anciennes via scraping', date:'05/06/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
+    { source:'BleepingComputer', title:'Pharma giant Novo Nordisk discloses breach of clinical trials data', date:'12/06/2026', url:'https://www.bleepingcomputer.com/news/security/pharmaceutical-giant-novo-nordisk-discloses-security-breach/' },
+    { source:'CERT Santé', title:'AWS – campagne active 11 janvier-18 février 2026 visant des appliances FortiGate exposées', date:'20/02/2026', url:'https://cyberveille.esante.gouv.fr/liste/actualites' },
   ],
   menaces:[
-    { source:'CERT-FR', title:'Rapport menaces T1 2026 – groupes APT et cybercriminels actifs', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
-    { source:'BleepingComputer', title:'Ransomware – suivi des groupes actifs et opérations de démantèlement 2026', date:'15/06/2026', url:'https://www.bleepingcomputer.com/tag/ransomware/' },
-    { source:'The Hacker News', title:'APT & Nation-State – cyberattaques étatiques et espionnage 2026', date:'15/06/2026', url:'https://thehackernews.com/search/label/APT' },
-    { source:'CERT-FR', title:'Panorama cybermenace 2025 – cartographie des groupes menaçants', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
-    { source:'BleepingComputer', title:'Actualités cybersécurité – incidents et nouvelles menaces', date:'15/06/2026', url:'https://www.bleepingcomputer.com/news/security/' },
-    { source:'Krebs on Security', title:'Investigations cybercrime – dark web et menaces actives', date:'15/06/2026', url:'https://krebsonsecurity.com/' },
+    { source:'SecurityWeek', title:'Verizon DBIR 2026 : l\'exploitation de vulnérabilités dépasse le vol de identifiants comme 1er vecteur de breach', date:'15/06/2026', url:'https://www.securityweek.com/verizon-dbir-2026-vulnerability-exploitation-overtakes-credential-theft-as-top-breach-vector/' },
+    { source:'The Hacker News', title:'Attackers Exploit Three Fortinet FortiSandbox Flaws, One Patched Last Week', date:'16/06/2026', url:'https://thehackernews.com/2026/06/attackers-exploit-three-fortinet.html' },
+    { source:'Help Net Security', title:'Qilin ransomware affiliate exploited Check Point VPN zero-day (CVE-2026-50751) – semaine en revue', date:'14/06/2026', url:'https://www.helpnetsecurity.com/2026/06/14/week-in-review-exploited-check-point-vpn-zero-day-oracle-peoplesoft-servers-under-attack/' },
+    { source:'Krebs on Security', title:'Who Runs the Ransomware Group "The Gentlemen?" – 2e groupe RaaS le plus actif, 332 victimes', date:'10/06/2026', url:'https://krebsonsecurity.com/2026/06/who-runs-the-ransomware-group-the-gentlemen/' },
+    { source:'BleepingComputer', title:'Oracle mitigates PeopleSoft zero-day exploited in data theft attacks (ShinyHunters)', date:'11/06/2026', url:'https://www.bleepingcomputer.com/news/security/oracle-mitigates-peoplesoft-zero-day-exploited-in-data-theft-attacks/' },
+    { source:'BleepingComputer', title:'Chinese hackers hijack auth flow, spy on isolated network for a decade', date:'13/06/2026', url:'https://www.bleepingcomputer.com/news/security/chinese-hackers-hijack-auth-flow-spy-on-isolated-network-for-a-decade/' },
   ],
   rgpd:[
-    { source:'CNIL', title:'Données de santé : sanction de 5 millions d\'euros à l\'encontre de la société IQVIA', date:'26/05/2026', url:'https://www.cnil.fr/fr/donnees-sante-sanction-5-millions-iqvia' },
-    { source:'CNIL', title:'Entrepôt de données santé IQVIA : la CNIL rappelle les conditions et le cadre légal', date:'26/05/2026', url:'https://www.cnil.fr/fr/entrepot-de-donnees-sante-iqvia-cnil-rappelle-conditions-et-cadre-legal-ayant-permis-son-autorisation' },
-    { source:'CNIL', title:'Cyberattaque : obligations légales des professionnels de santé en cas de violation', date:'15/06/2026', url:'https://www.cnil.fr/fr/professionnels-vous-etes-victimes-dune-cyberattaque-quelles-sont-vos-obligations' },
-    { source:'CNIL', title:'Sanctions prononcées par la CNIL – liste complète des délibérations 2026', date:'15/06/2026', url:'https://www.cnil.fr/fr/les-sanctions-prononcees-par-la-cnil' },
+    { source:'CNIL', title:'Données de santé : sanction de 5 millions d\'euros à l\'encontre de la société IQVIA (26 mai 2026)', date:'26/05/2026', url:'https://www.cnil.fr/fr/donnees-sante-sanction-5-millions-iqvia' },
+    { source:'CNIL', title:'Entrepôt de données santé IQVIA : la CNIL rappelle les conditions et le cadre légal ayant permis son autorisation', date:'04/06/2026', url:'https://www.cnil.fr/fr/entrepot-de-donnees-sante-iqvia-cnil-rappelle-conditions-et-cadre-legal-ayant-permis-son-autorisation' },
+    { source:'CNIL', title:'Fuite massive de données de santé : fichier de près de 500 000 personnes publié sur internet', date:'28/05/2026', url:'https://www.cnil.fr/fr/fuite-massive-de-donnees-de-sante-comment-savoir-si-elle-vous-concerne-et-que-pouvez-vous-faire' },
+    { source:'CNIL', title:'Numérique en santé : la CNIL et la HAS s\'engagent pour renforcer les bonnes pratiques', date:'11/03/2026', url:'https://www.cnil.fr/fr/numerique-en-sante-cnil-has' },
+    { source:'CNIL', title:'5e édition du Privacy Research Day – G7 des autorités de protection des données (24 juin 2026)', date:'15/06/2026', url:'https://www.cnil.fr/fr/privacy-research-day' },
     { source:'CERT-FR', title:'Panorama de la cybermenace 2025 – conformité NIS2 et incidents cyber', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
-    { source:'IAPP', title:'Privacy News – actualités conformité RGPD et protection des données', date:'15/06/2026', url:'https://iapp.org/news/privacy-news-top-10/' },
   ],
 };
 
@@ -1152,7 +1152,7 @@ function renderDiagnostic() {
 
 function setTimestamp() {
   const fmt = new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  document.getElementById('last-update').innerHTML = 'Mise à jour : ' + fmt + ' <span style="opacity:.7">· auto-actualisation 5 min</span>';
+  document.getElementById('last-update').innerHTML = 'Mise à jour : ' + fmt;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1840,27 +1840,35 @@ function renderFeedItems(panel, items, isMock) {
 //  CTI PANELS — CERT-FR & CYBERVEILLE ANS
 // ═══════════════════════════════════════════════════════════
 const CERTFR_MOCK = [
-  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Vulnérabilité dans Microsoft Exchange Server – CVE-2026-42897 (CERTFR-2026-ALE-005)', date:'14/05/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-005/' },
-  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Vulnérabilité dans Cisco Catalyst SD-WAN – CVE-2026-20127 exploitée (CERTFR-2026-ALE-002)', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-002/' },
-  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Multiples vulnérabilités dans Ivanti Endpoint Manager Mobile – exploitation active (CERTFR-2026-ALE-001)', date:'30/01/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-001/' },
-  { tag:'CTI', tagCls:'cti-tag-orange', title:'Rapport menaces T1 2026 – recul du ransomware, essor de l\'exfiltration (CERTFR-2026-CTI-003)', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
-  { tag:'CTI', tagCls:'cti-tag-orange', title:'Panorama de la cybermenace 2025 – frontière état/cybercriminel effacée (CERTFR-2026-CTI-002)', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
-  { tag:'IOC', tagCls:'cti-tag-blue', title:'Indicateurs de compromission – flux MISP TLP:CLEAR mis à jour', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/ioc/' },
-  { tag:'IOC', tagCls:'cti-tag-blue', title:'Rapport indicateurs de compromission – CERTFR-2022-IOC-001', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/ioc/CERTFR-2022-IOC-001/' },
-  { tag:'DUR', tagCls:'cti-tag-blue', title:'Recommandations sécurité énergie et eau – producteurs et intégrateurs (CERTFR-2025-DUR-003)', date:'22/01/2026', url:'https://www.cert.ssi.gouv.fr/dur/CERTFR-2025-DUR-003/' },
-  { tag:'ACTUALITÉ', tagCls:'cti-tag-blue', title:'Expiration de certificats Secure Boot en juin 2026', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-014/' },
-  { tag:'ACTUALITÉ', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-019 – vulnérabilités critiques semaine 17', date:'27/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-019/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'[Màj] Vulnérabilité dans Microsoft Exchange Server (15 mai 2026) – CVE-2026-42897 (CERTFR-2026-ALE-005)', date:'15/05/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-005/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Note d\'alerte – Ciblage des messageries instantanées (20 mars 2026) (CERTFR-2026-ALE-003)', date:'20/03/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-003/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Vulnérabilité dans F5 BIG-IP Access Policy Manager (31 mars 2026) – CVE-2025-53521 exploitée (CERTFR-2026-ALE-004)', date:'31/03/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-004/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'[Màj] Vulnérabilité dans Cisco Catalyst SD-WAN (25 février 2026) – CVE-2026-20127 exploitée (CERTFR-2026-ALE-002)', date:'25/02/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-002/' },
+  { tag:'AVIS', tagCls:'cti-tag-blue', title:'Vulnérabilité dans Cisco Catalyst (16 juin 2026) – CVE-2026-20262 activement exploitée (CERTFR-2026-AVI-0756)', date:'16/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0756/' },
+  { tag:'AVIS', tagCls:'cti-tag-blue', title:'Multiples vulnérabilités dans Redmine (16 juin 2026) – RCE, confidentialité, intégrité (CERTFR-2026-AVI-0754)', date:'16/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0754/' },
+  { tag:'AVIS', tagCls:'cti-tag-blue', title:'Vulnérabilité dans Oracle PeopleSoft (12 juin 2026) – CVE-2026-35273 exploitée depuis le 27 mai (CERTFR-2026-AVI-0749)', date:'12/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0749/' },
+  { tag:'AVIS', tagCls:'cti-tag-blue', title:'Multiples vulnérabilités dans les produits Fortinet (10 juin 2026) – RCE et confidentialité (CERTFR-2026-AVI-0725)', date:'10/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0725/' },
+  { tag:'AVIS', tagCls:'cti-tag-blue', title:'Multiples vulnérabilités dans les produits Palo Alto Networks (11 juin 2026) (CERTFR-2026-AVI-0734)', date:'11/06/2026', url:'https://www.cert.ssi.gouv.fr/avis/CERTFR-2026-AVI-0734/' },
+  { tag:'CTI', tagCls:'cti-tag-orange', title:'🇬🇧 Cyber Threat Overview 2025 (13 mai 2026) (CERTFR-2026-CTI-003)', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003/' },
+  { tag:'CTI', tagCls:'cti-tag-orange', title:'Panorama de la cybermenace 2025 – frontière état/cybercriminel toujours plus floue (11 mars 2026) (CERTFR-2026-CTI-002)', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
+  { tag:'CTI', tagCls:'cti-tag-orange', title:'L\'intelligence artificielle générative face aux attaques informatiques (04 février 2026) (CERTFR-2026-CTI-001)', date:'04/02/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-001/' },
+  { tag:'IOC', tagCls:'cti-tag-blue', title:'Feed MISP public TLP:CLEAR – indicateurs de compromission (CERTFR-2022-IOC-001)', date:'12/07/2022', url:'https://www.cert.ssi.gouv.fr/ioc/CERTFR-2022-IOC-001/' },
+  { tag:'IOC', tagCls:'cti-tag-blue', title:'Codes malveillants utilisés à des fins destructrices – marqueurs techniques (CERTFR-2024-IOC-002)', date:'11/07/2024', url:'https://www.cert.ssi.gouv.fr/ioc/CERTFR-2024-IOC-002/' },
+  { tag:'DUR', tagCls:'cti-tag-blue', title:'Recommandations à destination des acteurs du secteur de l\'énergie et de l\'eau (22 janvier 2026) (CERTFR-2025-DUR-003)', date:'22/01/2026', url:'https://www.cert.ssi.gouv.fr/dur/CERTFR-2025-DUR-003/' },
+  { tag:'ACTUALITÉ', tagCls:'cti-tag-blue', title:'Bulletin d\'actualité CERTFR-2026-ACT-026 (15 juin 2026)', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-026/' },
+  { tag:'ACTUALITÉ', tagCls:'cti-tag-blue', title:'Vulnérabilités et risques des produits d\'automatisation par IA agentique sur les postes de travail (13 avril 2026) (CERTFR-2026-ACT-016)', date:'13/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-016/' },
+  { tag:'ACTUALITÉ', tagCls:'cti-tag-blue', title:'Expiration de certificats Secure Boot en juin 2026 (02 avril 2026) (CERTFR-2026-ACT-014)', date:'02/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-014/' },
 ];
 
 const CYBERVEILLE_MOCK = [
-  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'SimpleHelp – CVE-2026-48558 – RCE non authentifié CVSS 10', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
-  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'vm2 – CVE-2026-47140 – Sandbox escape Node.js CVSS 10', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
-  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Amasty – CVE-2026-53787 – Injection critique portail CVSS 9.8', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
-  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'Zoom – CVE-2026-53407 – Élévation de privilèges CVSS 8.1', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
-  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'Netty – CVE-2026-50010 – Déni de service réseau CVSS 7.5', date:'15/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
-  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Philips IntelliVue MX40 – accès non authentifié CVSS 9.8', date:'14/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
-  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'BD Alaris infusion pump – vulnérabilité réseau CVSS 8.3', date:'13/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
-  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Ivanti Connect Secure – CVE-2025-0282 – toujours exploitée', date:'12/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Microsoft – CVE-2026-41089 – CVSS 9.8 – faille activement exploitée, correctif et contournement disponibles', date:'02/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes/microsoft-cve-2026-41089-2026-06-02' },
+  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'Palo Alto Networks – CVE-2026-0257 – CVSS 9.1 – faille activement exploitée, correctif et contournement disponibles', date:'01/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes/palo-alto-networks-cve-2026-0257-2026-06-01' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Oracle – CVE-2026-46840 – CVSS 10 – correctif disponible', date:'29/05/2026', url:'https://cyberveille.esante.gouv.fr/alertes/oracle-cve-2026-46840-2026-05-29' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Plesk – CVE-2026-44962 – CVSS 9.9 – correctif et contournement disponibles', date:'03/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes/plesk-cve-2026-44962-2026-06-03' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'Roche Diagnostics – CVE-2026-9844 – CVSS 9.4 – correctif et contournement disponibles (dispositif médical)', date:'03/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes/roche-diagnostics-cve-2026-9844-2026-06-03' },
+  { tag:'CRITIQUE', tagCls:'cti-tag-red',    title:'CloudNativePG – CVE-2026-44477 – CVSS 9.9 – correctif et contournement disponibles', date:'29/05/2026', url:'https://cyberveille.esante.gouv.fr/alertes/cloudnativepg-cve-2026-44477-2026-05-29' },
+  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'InHand Networks – CVE-2026-38704 – CVSS 9.8 – correctif disponible', date:'29/05/2026', url:'https://cyberveille.esante.gouv.fr/alertes/inhand-networks-cve-2026-38704-2026-05-29' },
+  { tag:'ÉLEVÉ',    tagCls:'cti-tag-orange', title:'OTRS – CVE-2026-48188 – CVSS 9.1 – correctif et contournement disponibles', date:'01/06/2026', url:'https://cyberveille.esante.gouv.fr/alertes/otrs-cve-2026-48188-2026-06-01' },
 ];
 
 function renderCTIItems(containerId, items) {
@@ -1877,6 +1885,7 @@ async function loadCTIPanels() {
   // CERT-FR : 5 flux dans l'ordre de priorité — Alertes, CTI/Menaces, IoC, DUR, Actualités
   const certFeedDefs = [
     { url:'https://www.cert.ssi.gouv.fr/alerte/feed/',    source:'ALERTE',    tagCls:'cti-tag-red' },
+    { url:'https://www.cert.ssi.gouv.fr/avis/feed/',      source:'AVIS',      tagCls:'cti-tag-blue' },
     { url:'https://www.cert.ssi.gouv.fr/cti/feed/',       source:'CTI',       tagCls:'cti-tag-orange' },
     { url:'https://www.cert.ssi.gouv.fr/ioc/feed/',       source:'IOC',       tagCls:'cti-tag-blue' },
     { url:'https://www.cert.ssi.gouv.fr/dur/feed/',       source:'DUR',       tagCls:'cti-tag-blue' },
@@ -1900,8 +1909,8 @@ async function loadCTIPanels() {
 
   // CYBERVEILLE ANS — plusieurs URLs RSS testées dans l'ordre
   const cyberUrls = [
+    'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites/rss.xml',
     'https://www.cyberveille-sante.gouv.fr/alertes/rss.xml',
-    'https://cyberveille.esante.gouv.fr/alertes-et-vulnerabilites/rss',
     'https://esante.gouv.fr/rss.xml',
   ];
   let ansItems = null;
