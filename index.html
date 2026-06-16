@@ -419,7 +419,7 @@
   </div>
 </div>
 
-<!-- ══ CERT-FR & CYBERVEILLE ══ -->
+<!-- ══ CYBERVEILLE ANS + FLUX RSS ══ -->
 <div class="sec-title">
   <h2>Veille</h2><div class="hr"></div>
 </div>
@@ -439,18 +439,20 @@
     </div>
   </div>
 
-  <!-- CERT-FR -->
+  <!-- FLUX RSS -->
   <div class="cti-site">
-    <div class="cti-site-hdr">
-      <h3>
-        <span style="background:#003189;color:#fff;padding:.15rem .45rem;border-radius:4px;font-size:.65rem">CERT-FR</span>
-        cert.ssi.gouv.fr — Alertes &amp; Avis
-      </h3>
-      <a class="cti-open-btn" href="https://www.cert.ssi.gouv.fr/" target="_blank" rel="noopener">Ouvrir</a>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('alertes',this)">Alertes Institutionnelles</button>
+      <button class="tab" onclick="switchTab('cve',this)">CVE &amp; Vulnérabilités</button>
+      <button class="tab" onclick="switchTab('sante',this)">Cybermenaces Santé</button>
+      <button class="tab" onclick="switchTab('menaces',this)">Veille Générale</button>
+      <button class="tab" onclick="switchTab('rgpd',this)">RGPD &amp; Conformité</button>
     </div>
-    <div class="cti-feed" id="certfr-feed">
-      <div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>
-    </div>
+    <div class="feed-panel active" id="panel-alertes"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+    <div class="feed-panel" id="panel-cve"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+    <div class="feed-panel" id="panel-sante"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+    <div class="feed-panel" id="panel-menaces"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
+    <div class="feed-panel" id="panel-rgpd"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
   </div>
 
 </div>
@@ -474,25 +476,6 @@
     </div>
     <div class="actor-list" id="actor-list"></div>
   </div>
-</div>
-
-<!-- RSS -->
-<div class="sec-title">
-  <h2>Flux RSS</h2><div class="hr"></div>
-</div>
-<div class="card">
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('alertes',this)">Alertes Institutionnelles</button>
-    <button class="tab" onclick="switchTab('cve',this)">CVE &amp; Vulnérabilités</button>
-    <button class="tab" onclick="switchTab('sante',this)">Cybermenaces Santé</button>
-    <button class="tab" onclick="switchTab('menaces',this)">Veille Générale</button>
-    <button class="tab" onclick="switchTab('rgpd',this)">RGPD &amp; Conformité</button>
-  </div>
-  <div class="feed-panel active" id="panel-alertes"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
-  <div class="feed-panel" id="panel-cve"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
-  <div class="feed-panel" id="panel-sante"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
-  <div class="feed-panel" id="panel-menaces"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
-  <div class="feed-panel" id="panel-rgpd"><div class="feed-loading"><span class="spinner"></span>Chargement…</div></div>
 </div>
 
 <!-- ══ FEATURE 1 : ALERTES PUSH ══ -->
@@ -1095,7 +1078,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initCharts(analyzeThreatActivity([]));
   renderOSINT();
   loadFeedsAndAnalyze();
-  startAutoRefresh();
 });
 
 // Charge tous les flux (RSS + CTI panels) puis recalcule les visuels
@@ -1153,77 +1135,6 @@ function renderDiagnostic() {
 function setTimestamp() {
   const fmt = new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
   document.getElementById('last-update').innerHTML = 'Mise à jour : ' + fmt;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  AUTO-REFRESH — vérifie les flux toutes les 5 minutes
-// ═══════════════════════════════════════════════════════════
-const AUTO_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
-let autoRefreshTimer = null;
-
-function startAutoRefresh() {
-  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-  autoRefreshTimer = setInterval(() => {
-    // On ne tape pas les proxies si l'onglet n'est pas visible : ça évite
-    // de consommer le quota gratuit pour rien quand personne ne regarde.
-    if (document.visibilityState === 'visible') {
-      silentRefreshFeeds();
-    }
-  }, AUTO_REFRESH_MS);
-
-  // Si l'onglet redevient visible après avoir été masqué longtemps,
-  // on vérifie immédiatement plutôt que d'attendre le prochain tick.
-  let hiddenSince = null;
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      hiddenSince = Date.now();
-    } else if (hiddenSince && Date.now() - hiddenSince > AUTO_REFRESH_MS) {
-      silentRefreshFeeds();
-      hiddenSince = null;
-    }
-  });
-}
-
-// Rafraîchissement automatique discret : invalide le cache, recharge les
-// flux en arrière-plan, et signale s'il y a de nouveaux items détectés
-// (sans bloquer l'UI ni afficher de spinner intrusif).
-async function silentRefreshFeeds() {
-  Object.keys(sessionStorage)
-    .filter(k => k.startsWith('feedcache:'))
-    .forEach(k => sessionStorage.removeItem(k));
-
-  const previousUrls = new Set(
-    Array.from(document.querySelectorAll('.feed-item .fi-title a, .cti-item .cti-title'))
-      .map(a => a.getAttribute('href'))
-  );
-
-  try {
-    lastCollectedItems = [];
-    diagLog = [];
-    await Promise.all([loadAllFeeds(), loadCTIPanels()]);
-    refreshDynamicVisuals();
-    renderDiagnostic();
-    setTimestamp();
-
-    const newUrls = Array.from(document.querySelectorAll('.feed-item .fi-title a, .cti-item .cti-title'))
-      .map(a => a.getAttribute('href'));
-    const hasNew = newUrls.some(u => u && !previousUrls.has(u));
-    if (hasNew) {
-      flashUpdateIndicator();
-      addNotifEntry('notif-new', 'MAJ', 'Nouveaux éléments détectés dans les flux CTI');
-    }
-  } catch (e) {
-    console.warn('[Auto-refresh] échec :', e.message);
-  }
-}
-
-function flashUpdateIndicator() {
-  const el = document.getElementById('last-update');
-  if (!el) return;
-  const original = el.style.color;
-  el.style.color = 'var(--green)';
-  el.style.fontWeight = '700';
-  setTimeout(() => { el.style.color = original; el.style.fontWeight = ''; }, 4000);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1883,6 +1794,8 @@ function renderCTIItems(containerId, items) {
 
 async function loadCTIPanels() {
   // CERT-FR : 5 flux dans l'ordre de priorité — Alertes, CTI/Menaces, IoC, DUR, Actualités
+  // Le panneau d'affichage dédié a été retiré, mais on continue de récupérer
+  // ces flux pour qu'ils alimentent l'analyse dynamique (tendances, types, vecteurs).
   const certFeedDefs = [
     { url:'https://www.cert.ssi.gouv.fr/alerte/feed/',    source:'ALERTE',    tagCls:'cti-tag-red' },
     { url:'https://www.cert.ssi.gouv.fr/avis/feed/',      source:'AVIS',      tagCls:'cti-tag-blue' },
@@ -1896,15 +1809,8 @@ async function loadCTIPanels() {
   const certItems = certFeedDefs.flatMap((f,i) => sortByDate(certResults[i]||[]).slice(0,4).map(it => ({...it, tagCls:f.tagCls})));
   if (certItems.length) {
     certItems.forEach(collectItem);
-    document.getElementById('certfr-feed').innerHTML = certItems.map(it => `
-      <div class="cti-item">
-        <span class="cti-tag ${it.tagCls}">${it.source}</span>
-        <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
-        <div class="cti-meta">${it.date}</div>
-      </div>
-    `).join('');
   } else {
-    renderCTIItems('certfr-feed', CERTFR_MOCK);
+    CERTFR_MOCK.forEach(collectItem);
   }
 
   // CYBERVEILLE ANS — plusieurs URLs RSS testées dans l'ordre
@@ -2104,7 +2010,6 @@ async function refreshAllFeeds() {
   ['alertes','cve','sante','menaces','rgpd'].forEach(id => {
     document.getElementById('panel-'+id).innerHTML = '<div class="feed-loading"><span class="spinner"></span>Chargement…</div>';
   });
-  document.getElementById('certfr-feed').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>';
   document.getElementById('cyberveille-feed').innerHTML = '<div style="padding:2rem;text-align:center;color:var(--t3);font-size:.78rem"><span class="spinner"></span>Chargement…</div>';
 
   try {
