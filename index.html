@@ -1584,12 +1584,16 @@ function renderFeedItems(panel, items, isMock) {
 //  CTI PANELS — CERT-FR & CYBERVEILLE ANS
 // ═══════════════════════════════════════════════════════════
 const CERTFR_MOCK = [
-  { tag:'RAPPORT', tagCls:'cti-tag-red',  title:'Rapport menaces T1 2026 – recul du ransomware, essor de l\'exfiltration (CERTFR-2026-CTI-003)', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
-  { tag:'RAPPORT', tagCls:'cti-tag-blue', title:'Panorama de la cybermenace 2025 – frontière état/cybercriminel effacée (CERTFR-2026-CTI-002)', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
-  { tag:'BULLETIN', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-019 – vulnérabilités critiques semaine 17', date:'27/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-019/' },
-  { tag:'RAPPORT', tagCls:'cti-tag-orange', title:'L\'IA générative face aux attaques informatiques – analyse CERT-FR (CERTFR-2026-CTI-001)', date:'04/02/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-001/' },
-  { tag:'BULLETIN', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-012 – vulnérabilités Moxa, Schneider Electric', date:'23/03/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-012/' },
-  { tag:'BULLETIN', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-009 – alertes critiques mars 2026', date:'02/03/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-009/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Vulnérabilité dans Microsoft Exchange Server – CVE-2026-42897 (CERTFR-2026-ALE-005)', date:'14/05/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-005/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Vulnérabilité dans Cisco Catalyst SD-WAN – CVE-2026-20127 exploitée (CERTFR-2026-ALE-002)', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-002/' },
+  { tag:'ALERTE', tagCls:'cti-tag-red', title:'Multiples vulnérabilités dans Ivanti Endpoint Manager Mobile – exploitation active (CERTFR-2026-ALE-001)', date:'30/01/2026', url:'https://www.cert.ssi.gouv.fr/alerte/CERTFR-2026-ALE-001/' },
+  { tag:'CTI', tagCls:'cti-tag-orange', title:'Rapport menaces T1 2026 – recul du ransomware, essor de l\'exfiltration (CERTFR-2026-CTI-003)', date:'13/05/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-003' },
+  { tag:'CTI', tagCls:'cti-tag-orange', title:'Panorama de la cybermenace 2025 – frontière état/cybercriminel effacée (CERTFR-2026-CTI-002)', date:'11/03/2026', url:'https://www.cert.ssi.gouv.fr/cti/CERTFR-2026-CTI-002/' },
+  { tag:'IOC', tagCls:'cti-tag-blue', title:'Indicateurs de compromission – flux MISP TLP:CLEAR mis à jour', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/ioc/' },
+  { tag:'IOC', tagCls:'cti-tag-blue', title:'Rapport indicateurs de compromission – CERTFR-2022-IOC-001', date:'15/06/2026', url:'https://www.cert.ssi.gouv.fr/ioc/CERTFR-2022-IOC-001/' },
+  { tag:'DUR', tagCls:'cti-tag-blue', title:'Recommandations sécurité énergie et eau – producteurs et intégrateurs (CERTFR-2025-DUR-003)', date:'22/01/2026', url:'https://www.cert.ssi.gouv.fr/dur/CERTFR-2025-DUR-003/' },
+  { tag:'DUR', tagCls:'cti-tag-blue', title:'10 règles de bonnes pratiques pour l\'usage des téléphones mobiles (CERTFR-2025-DUR-001)', date:'03/04/2025', url:'https://www.cert.ssi.gouv.fr/dur/CERTFR-2025-DUR-001/' },
+  { tag:'ACTUALITÉ', tagCls:'cti-tag-blue', title:'Bulletin CERTFR-2026-ACT-019 – vulnérabilités critiques semaine 17', date:'27/04/2026', url:'https://www.cert.ssi.gouv.fr/actualite/CERTFR-2026-ACT-019/' },
 ];
 
 const CYBERVEILLE_MOCK = [
@@ -1614,18 +1618,21 @@ function renderCTIItems(containerId, items) {
 }
 
 async function loadCTIPanels() {
-  // CERT-FR : flux principal + alertes
-  const [certMain, certAlertes] = await Promise.all([
-    fetchFeed('https://www.cert.ssi.gouv.fr/feed/', 'CERT-FR'),
-    fetchFeed('https://www.cert.ssi.gouv.fr/alerte/feed/', 'ALERTE'),
-  ]);
-  const certItems = [...(certMain||[]), ...(certAlertes||[])]
-    .sort((a,b) => new Date(b.date.split('/').reverse().join('-')) - new Date(a.date.split('/').reverse().join('-')))
-    .slice(0,10);
+  // CERT-FR : 5 flux dans l'ordre de priorité — Alertes, CTI/Menaces, IoC, DUR, Actualités
+  const certFeedDefs = [
+    { url:'https://www.cert.ssi.gouv.fr/alerte/feed/',    source:'ALERTE',    tagCls:'cti-tag-red' },
+    { url:'https://www.cert.ssi.gouv.fr/cti/feed/',       source:'CTI',       tagCls:'cti-tag-orange' },
+    { url:'https://www.cert.ssi.gouv.fr/ioc/feed/',       source:'IOC',       tagCls:'cti-tag-blue' },
+    { url:'https://www.cert.ssi.gouv.fr/dur/feed/',       source:'DUR',       tagCls:'cti-tag-blue' },
+    { url:'https://www.cert.ssi.gouv.fr/actualite/feed/', source:'ACTUALITÉ', tagCls:'cti-tag-blue' },
+  ];
+  const certResults = await Promise.all(certFeedDefs.map(f => fetchFeed(f.url, f.source)));
+  const sortByDate = arr => arr.sort((a,b) => new Date(b.date.split('/').reverse().join('-')) - new Date(a.date.split('/').reverse().join('-')));
+  const certItems = certFeedDefs.flatMap((f,i) => sortByDate(certResults[i]||[]).slice(0,4).map(it => ({...it, tagCls:f.tagCls})));
   if (certItems.length) {
     document.getElementById('certfr-feed').innerHTML = certItems.map(it => `
       <div class="cti-item">
-        <span class="cti-tag ${it.source==='ALERTE'?'cti-tag-red':'cti-tag-blue'}">${it.source}</span>
+        <span class="cti-tag ${it.tagCls}">${it.source}</span>
         <a class="cti-title" href="${it.url}" target="_blank" rel="noopener">${it.title}</a>
         <div class="cti-meta">${it.date}</div>
       </div>
