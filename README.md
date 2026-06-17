@@ -2,7 +2,7 @@
 
 **Cyber Threat Intelligence — Healthcare**
 
-Tableau de bord de veille cyber (CTI) développé pour **OC Santé**, groupe de cliniques privées en Occitanie (Montpellier). Il consolide en temps réel les informations de sécurité essentielles pour permettre aux équipes techniques et aux dirigeants de prendre des décisions éclairées face aux menaces cybernétiques visant le secteur de la santé.
+Tableau de bord de veille cyber (CTI) développé pour un groupe de cliniques privées en Occitanie. Il consolide en temps réel les informations de sécurité essentielles pour permettre aux équipes techniques et aux dirigeants de prendre des décisions éclairées face aux menaces cybernétiques visant le secteur de la santé.
 
 Projet **OpenInnov 2025–2026** · M1 Cybersécurité
 
